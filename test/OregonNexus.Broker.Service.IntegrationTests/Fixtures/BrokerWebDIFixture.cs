@@ -38,7 +38,7 @@ public class BrokerWebDIServicesFixture : IDisposable
             .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
             .Build();
 
-        var services = new ServiceCollection();
+        var services = new Microsoft.Extensions.DependencyInjection.ServiceCollection();
 
         services.AddLogging();
 

@@ -18,8 +18,8 @@ public class UnitTest1
     [Fact]
     public void Test1()
     {
-        var dbconext = _services.Services!.GetService<BrokerDbContext>();
+        var dbcontext = _services.Services!.GetService<BrokerDbContext>();
 
-        Assert.NotNull(dbconext);
+        Assert.NotNull(dbcontext);
     }
 }
