@@ -6,7 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace OregonNexus.Broker.Service;
 
-public class ServiceCollection //: IConnectorServiceCollection
+public static class BrokerServiceCollection //: IConnectorServiceCollection
 {
     /*
     public static IServiceCollection AddConfig(this IServiceCollection services, IConfiguration config)
@@ -15,9 +15,10 @@ public class ServiceCollection //: IConnectorServiceCollection
     }
     */
 
-    public static IServiceCollection AddDependencies(IServiceCollection services)
+    public static IServiceCollection AddBrokerServices(this IServiceCollection services)
     {
         //services.AddScoped<StudentLookupService>();
+        services.AddScoped<PayloadContentTypeService>();
 
         return services;
     }
