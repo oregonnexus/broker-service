@@ -8,9 +8,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\broker-core\src\OregonNexus.Broker.Domain\OregonNexus.Broker.Domain.csproj" />
-    <ProjectReference Include="..\..\..\broker-data\src\OregonNexus.Broker.Data\OregonNexus.Broker.Data.csproj" />
+    <ProjectReference Include="..\..\..\broker-data\src\OregonNexus.Broker.Data.csproj" />
     <ProjectReference Include="..\..\..\broker-core\src\OregonNexus.Broker.Connector\OregonNexus.Broker.Connector.csproj" />
-    <ProjectReference Include="..\..\..\broker-data\src\OregonNexus.Broker.Data.Migrations.PostgreSQL\OregonNexus.Broker.Data.Migrations.PostgreSQL.csproj" />
   </ItemGroup>
 
   <ItemGroup>
