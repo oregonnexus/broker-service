@@ -26,7 +26,7 @@ public class StudentLookupResolver
     public IStudentLookupService Resolve(Type TConnector)
     {
 
-        var assembly = TConnector.Assembly.GetTypes();
+        var assembly = TConnector.Assembly.GetExportedTypes();
         // Locate the student lookup service in connector
         var studentLookupServiceType = assembly.Where(x => x.GetInterface(nameof(IStudentLookupService)) is not null && x.IsAbstract == false).FirstOrDefault();
         
