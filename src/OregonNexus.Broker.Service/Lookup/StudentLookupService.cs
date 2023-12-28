@@ -45,31 +45,5 @@ public class StudentLookupService
         var results = await connectorStudentLookupService.SearchAsync(searchStudent);
 
         return results;
-
-        // var students = new List<StudentLookupResult>();
-        
-        // students.Add(new StudentLookupResult
-        //     {
-        //         StudentId = "232323",
-        //         FirstName = "John",
-        //         LastName = "Doe",
-        //         BirthDate = new DateOnly(2000, 1, 3),
-        //         Gender = "M"
-        //     });
-
-        // students.Add(new StudentLookupResult
-        //     {
-        //         StudentId = "234933",
-        //         FirstName = "Jane",
-        //         LastName = "Doe",
-        //         BirthDate = new DateOnly(2003, 4, 5),
-        //         Gender = "F"
-        //     });
-
-        //  var filteredStudents = students.Where(x => x.StudentId.ToLower().Contains(searchParameter) || x.FirstName.ToLower().Contains(searchParameter) || x.LastName.ToLower().Contains(searchParameter)).ToList();
-        
-        // return filteredStudents;
-        
-        // Connector assembly name, student ID, last name, first name, whatever
     }
 }
