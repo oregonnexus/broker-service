@@ -22,17 +22,27 @@ public class PayloadResolver : IPayloadResolver
     public PayloadResolver(IRepository<EducationOrganizationPayloadSettings> edOrgPayloadSettings, IHttpContextAccessor httpContext, IServiceProvider serviceProvider)
     {
         _edOrgPayloadSettings = edOrgPayloadSettings;
-        _session = httpContext!.HttpContext.Session;
+        _session = httpContext!.HttpContext!.Session;
         _serviceProvider = serviceProvider;
     }
     
-    public async Task<List<PayloadSettingsContentType>> FetchPayloadSettingsAsync<T>(PayloadDirection payloadDirection)
+    public async Task<IncomingPayloadSettings> FetchIncomingPayloadSettingsAsync<T>()
     {
         var focusEducationOrganization = Guid.Parse(_session!.GetString("Focus.EducationOrganization.Key"));
 
-        var connectorSpec = new PayloadSettingsByNameAndEdOrgIdSpec(typeof(T).FullName, payloadDirection, focusEducationOrganization);
+        var connectorSpec = new PayloadSettingsByNameAndEdOrgIdSpec(typeof(T).FullName, focusEducationOrganization);
         var repoConnectorSettings = await _edOrgPayloadSettings.FirstOrDefaultAsync(connectorSpec);
 
-        return repoConnectorSettings.Settings;
+        return repoConnectorSettings.IncomingPayloadSettings;
+    }
+
+    public async Task<OutgoingPayloadSettings> FetchOutgoingPayloadSettingsAsync<T>()
+    {
+        var focusEducationOrganization = Guid.Parse(_session!.GetString("Focus.EducationOrganization.Key"));
+
+        var connectorSpec = new PayloadSettingsByNameAndEdOrgIdSpec(typeof(T).FullName, focusEducationOrganization);
+        var repoConnectorSettings = await _edOrgPayloadSettings.FirstOrDefaultAsync(connectorSpec);
+
+        return repoConnectorSettings.OutgoingPayloadSettings;
     }
 }

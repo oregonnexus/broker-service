@@ -4,6 +4,7 @@ using OregonNexus.Broker.Domain;
 using OregonNexus.Broker.Connector.Payload;
 using OregonNexus.Broker.Service.Resolvers;
 using OregonNexus.Broker.Connector;
+using Ardalis.GuardClauses;
 
 namespace OregonNexus.Broker.Service.Lookup;
 
@@ -22,13 +23,45 @@ public class StudentLookupService
 
     public async Task<List<StudentLookupResult>> SearchAsync(PayloadDirection payloadDirection, string searchParameter)
     {
-        //throw new NotImplementedException();
-        // Determine connector to call
-        var payloadSettings = await _payloadResolver.FetchPayloadSettingsAsync<StudentCumulativeRecord>(payloadDirection);
+        string studentLookupConnector;
 
-        var connectorToUse = payloadSettings.Where(i => i.PayloadContentType == "DataConnector").Select(i => i.Settings).First();
+        if (payloadDirection == PayloadDirection.Incoming)
+        {
+            var payloadSettings = await _payloadResolver.FetchIncomingPayloadSettingsAsync<StudentCumulativeRecord>();
 
-        Type typeConnectorToUse = _connectorLoader.GetConnector(connectorToUse);
+            if (payloadSettings.StudentInformationSystem is null)
+            {
+                throw new ArgumentNullException("Student Information System missing on incoming payload settings.");
+            }
+
+            studentLookupConnector = payloadSettings.StudentInformationSystem;
+        }
+        else
+        {
+            throw new ArgumentNullException("Student Information System missing on incoming payload settings.");
+        }
+
+        if (payloadDirection == PayloadDirection.Outgoing)
+        {
+            var payloadSettings = await _payloadResolver.FetchOutgoingPayloadSettingsAsync<StudentCumulativeRecord>();
+
+            if (payloadSettings.PrimaryDataConnector is null)
+            {
+                throw new ArgumentNullException("Primary data connector missing on outgoing payload settings.");
+            }
+            studentLookupConnector = payloadSettings.PrimaryDataConnector;
+        }
+        else
+        {
+            throw new ArgumentNullException("Primary data connector missing on outgoing payload settings.");
+        }
+
+        if (studentLookupConnector is null && studentLookupConnector == "")
+        {
+            throw new ArgumentNullException("Unable to find connector to use for student lookup.");
+        }
+
+        Type typeConnectorToUse = _connectorLoader.GetConnector(studentLookupConnector)!;
 
         var connectorStudentLookupService = _studentLookupResolver.Resolve(typeConnectorToUse);
 
