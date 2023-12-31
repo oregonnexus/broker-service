@@ -23,7 +23,7 @@ public class StudentLookupService
 
     public async Task<List<StudentLookupResult>> SearchAsync(PayloadDirection payloadDirection, string searchParameter)
     {
-        string studentLookupConnector;
+        string studentLookupConnector = default!;
 
         if (payloadDirection == PayloadDirection.Incoming)
         {
@@ -36,10 +36,6 @@ public class StudentLookupService
 
             studentLookupConnector = payloadSettings.StudentInformationSystem;
         }
-        else
-        {
-            throw new ArgumentNullException("Student Information System missing on incoming payload settings.");
-        }
 
         if (payloadDirection == PayloadDirection.Outgoing)
         {
@@ -51,12 +47,8 @@ public class StudentLookupService
             }
             studentLookupConnector = payloadSettings.PrimaryDataConnector;
         }
-        else
-        {
-            throw new ArgumentNullException("Primary data connector missing on outgoing payload settings.");
-        }
 
-        if (studentLookupConnector is null && studentLookupConnector == "")
+        if (studentLookupConnector == default)
         {
             throw new ArgumentNullException("Unable to find connector to use for student lookup.");
         }
