@@ -43,7 +43,7 @@ public class StudentLookupService
 
             if (payloadSettings.PrimaryDataConnector is null)
             {
-                throw new ArgumentNullException("Primary data connector missing on outgoing payload settings.");
+                throw new ArgumentNullException("Primary Data Connector missing on outgoing payload settings.");
             }
             studentLookupConnector = payloadSettings.PrimaryDataConnector;
         }
