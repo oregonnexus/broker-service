@@ -41,11 +41,11 @@ public class StudentLookupService
         {
             var payloadSettings = await _payloadResolver.FetchOutgoingPayloadSettingsAsync<StudentCumulativeRecord>();
 
-            if (payloadSettings.PrimaryDataConnector is null)
+            if (payloadSettings.StudentLookupConnector is null)
             {
-                throw new ArgumentNullException("Primary Data Connector missing on outgoing payload settings.");
+                throw new ArgumentNullException("Student Lookup Connector missing on outgoing payload settings.");
             }
-            studentLookupConnector = payloadSettings.PrimaryDataConnector;
+            studentLookupConnector = payloadSettings.StudentLookupConnector;
         }
 
         if (studentLookupConnector == default)

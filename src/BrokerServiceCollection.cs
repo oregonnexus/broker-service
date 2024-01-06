@@ -29,6 +29,8 @@ public static class BrokerServiceCollection //: IConnectorServiceCollection
         // Resolvers
         services.AddScoped<IConfigurationResolver, ConfigurationResolver>();
         services.AddScoped<IPayloadResolver, PayloadResolver>();
+        services.AddScoped<FocusEducationOrganizationResolver>();
+        services.AddScoped<DistrictEducationOrganizationResolver>();
         services.AddScoped<StudentLookupResolver>();
 
         // Services

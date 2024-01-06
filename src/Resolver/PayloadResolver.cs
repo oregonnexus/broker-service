@@ -10,39 +10,53 @@ using OregonNexus.Broker.Domain;
 using OregonNexus.Broker.Domain.Specifications;
 using OregonNexus.Broker.SharedKernel;
 using OregonNexus.Broker.Connector.Resolvers;
+using Ardalis.GuardClauses;
 
 namespace OregonNexus.Broker.Service.Resolvers;
 
 public class PayloadResolver : IPayloadResolver
 {
     private readonly IRepository<EducationOrganizationPayloadSettings> _edOrgPayloadSettings;
-    private readonly ISession _session;
+    private readonly FocusEducationOrganizationResolver _focusEdOrg;
+    private readonly DistrictEducationOrganizationResolver _districtEdOrg;
     private readonly IServiceProvider _serviceProvider;
 
-    public PayloadResolver(IRepository<EducationOrganizationPayloadSettings> edOrgPayloadSettings, IHttpContextAccessor httpContext, IServiceProvider serviceProvider)
+    public PayloadResolver(
+        IRepository<EducationOrganizationPayloadSettings> edOrgPayloadSettings, 
+        FocusEducationOrganizationResolver focusEdOrg, 
+        DistrictEducationOrganizationResolver districtEdOrg,
+        IServiceProvider serviceProvider
+    )
     {
         _edOrgPayloadSettings = edOrgPayloadSettings;
-        _session = httpContext!.HttpContext!.Session;
+        _focusEdOrg = focusEdOrg;
+        _districtEdOrg = districtEdOrg;
         _serviceProvider = serviceProvider;
     }
     
-    public async Task<IncomingPayloadSettings> FetchIncomingPayloadSettingsAsync<T>()
+    public async Task<IncomingPayloadSettings> FetchIncomingPayloadSettingsAsync<T>() where T : IPayload
     {
-        var focusEducationOrganization = Guid.Parse(_session!.GetString("Focus.EducationOrganization.Key"));
-
-        var connectorSpec = new PayloadSettingsByNameAndEdOrgIdSpec(typeof(T).FullName, focusEducationOrganization);
+        Guard.Against.Null(typeof(T));
+        
+        var connectorSpec = new PayloadSettingsByNameAndEdOrgIdSpec(typeof(T).FullName!, _districtEdOrg.Resolve(await _focusEdOrg.Resolve()).Id);
         var repoConnectorSettings = await _edOrgPayloadSettings.FirstOrDefaultAsync(connectorSpec);
+        
+        Guard.Against.Null(repoConnectorSettings);
+        Guard.Against.Null(repoConnectorSettings.IncomingPayloadSettings);
 
-        return repoConnectorSettings.IncomingPayloadSettings;
+        return repoConnectorSettings!.IncomingPayloadSettings;
     }
 
-    public async Task<OutgoingPayloadSettings> FetchOutgoingPayloadSettingsAsync<T>()
+    public async Task<OutgoingPayloadSettings> FetchOutgoingPayloadSettingsAsync<T>() where T : IPayload
     {
-        var focusEducationOrganization = Guid.Parse(_session!.GetString("Focus.EducationOrganization.Key"));
+        Guard.Against.Null(typeof(T));
 
-        var connectorSpec = new PayloadSettingsByNameAndEdOrgIdSpec(typeof(T).FullName, focusEducationOrganization);
+        var connectorSpec = new PayloadSettingsByNameAndEdOrgIdSpec(typeof(T).FullName!, _districtEdOrg.Resolve(await _focusEdOrg.Resolve()).Id);
         var repoConnectorSettings = await _edOrgPayloadSettings.FirstOrDefaultAsync(connectorSpec);
 
-        return repoConnectorSettings.OutgoingPayloadSettings;
+        Guard.Against.Null(repoConnectorSettings);
+        Guard.Against.Null(repoConnectorSettings.OutgoingPayloadSettings);
+
+        return repoConnectorSettings!.OutgoingPayloadSettings;
     }
 }
