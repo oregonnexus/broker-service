@@ -11,31 +11,32 @@ using OregonNexus.Broker.Domain.Specifications;
 using OregonNexus.Broker.SharedKernel;
 using OregonNexus.Broker.Connector.Resolvers;
 using OregonNexus.Broker.Connector.StudentLookup;
+using OregonNexus.Broker.Connector;
 using OregonNexus.Broker.Connector.Student;
 
 namespace OregonNexus.Broker.Service.Resolvers;
 
-public class StudentLookupResolver
+public class StudentResolver
 {
     private readonly IServiceProvider _serviceProvider;
     
-    public StudentLookupResolver(IServiceProvider serviceProvider)
+    public StudentResolver(IServiceProvider serviceProvider)
     {
         _serviceProvider = serviceProvider;
     }
 
-    public IStudentLookupService Resolve(Type TConnector)
+    public IStudentService Resolve(Type TConnector)
     {
         var assembly = TConnector.Assembly.GetExportedTypes();
         // Locate the student lookup service in connector
         var studentLookupServiceType = assembly
-            .Where(x => x.GetInterface("IStudentLookupService") != null
+            .Where(x => x.GetInterface(nameof(IStudent)) is not null 
                      && x.IsAbstract == false)
             .FirstOrDefault();
         
-        var connectorStudentLookupService = 
+        var connectorStudentLookupService = (IStudentService)
             ActivatorUtilities.CreateInstance(_serviceProvider, studentLookupServiceType);
         
-        return (IStudentLookupService)connectorStudentLookupService;
+        return connectorStudentLookupService;
     }
 }

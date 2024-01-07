@@ -9,20 +9,20 @@ using OregonNexus.Broker.Connector.Student;
 
 namespace OregonNexus.Broker.Service.Lookup;
 
-public class StudentLookupService
+public class StudentService
 {
     private readonly IPayloadResolver _payloadResolver;
-    private readonly StudentLookupResolver _studentLookupResolver;
+    private readonly StudentResolver _studentResolver;
     private readonly ConnectorLoader _connectorLoader;
     
-    public StudentLookupService(ConnectorLoader connectorLoader, IPayloadResolver payloadResolver, StudentLookupResolver studentLookupResolver)
+    public StudentService(ConnectorLoader connectorLoader, IPayloadResolver payloadResolver, StudentResolver studentResolver)
     {
         _connectorLoader = connectorLoader;
         _payloadResolver = payloadResolver;
-        _studentLookupResolver = studentLookupResolver;
+        _studentResolver = studentResolver;
     }
 
-    public async Task<List<StudentLookupResult>> SearchAsync(PayloadDirection payloadDirection, string searchParameter)
+    public async Task<IStudent?> FetchAsync(PayloadDirection payloadDirection, Student studentToFetch)
     {
         string studentLookupConnector = default!;
 
@@ -56,20 +56,8 @@ public class StudentLookupService
 
         Type typeConnectorToUse = _connectorLoader.GetConnector(studentLookupConnector)!;
 
-        var connectorStudentLookupService = _studentLookupResolver.Resolve(typeConnectorToUse);
+        var connectorStudentService = _studentResolver.Resolve(typeConnectorToUse);
 
-        // Prepare parameters
-        var searchStudent = new Student()
-        {
-            StudentNumber = searchParameter,
-            FirstName = searchParameter,
-            LastName = searchParameter,
-            MiddleName = searchParameter
-        };
-
-        // Pass search parameters to connector for processing
-        var results = await connectorStudentLookupService.SearchAsync(searchStudent);
-
-        return results;
+        return await connectorStudentService.FetchAsync(studentToFetch);
     }
 }

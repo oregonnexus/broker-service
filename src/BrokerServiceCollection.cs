@@ -32,9 +32,11 @@ public static class BrokerServiceCollection //: IConnectorServiceCollection
         services.AddScoped<FocusEducationOrganizationResolver>();
         services.AddScoped<DistrictEducationOrganizationResolver>();
         services.AddScoped<StudentLookupResolver>();
+        services.AddScoped<StudentResolver>();
 
         // Services
         services.AddScoped<StudentLookupService>();
+        services.AddScoped<StudentService>();
         services.AddScoped<PayloadContentTypeService>();
 
         return services;
