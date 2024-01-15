@@ -1,12 +1,9 @@
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-//using OregonNexus.Broker.Connector.Edupoint.Synergy.Authentication;
-//using OregonNexus.Broker.Connector.Authentication;
-//using OregonNexus.Broker.Connector.Locators;
 using OregonNexus.Broker.Connector.Resolvers;
 using OregonNexus.Broker.Service.Resolvers;
 using OregonNexus.Broker.Service.Lookup;
 using OregonNexus.Broker.Service.Serializers;
+using OregonNexus.Broker.Service.Jobs;
 
 namespace OregonNexus.Broker.Service;
 
@@ -39,6 +36,17 @@ public static class BrokerServiceCollection //: IConnectorServiceCollection
         services.AddScoped<StudentService>();
         services.AddScoped<PayloadContentTypeService>();
 
+        return services;
+    }
+
+    public static IServiceCollection AddBrokerServicesForWorker(this IServiceCollection services)
+    {
+        // Resolvers
+        services.AddSingleton<WorkerResolver>();
+        
+        // Jobs
+        services.AddSingleton<SendRequest>();
+        
         return services;
     }
 }
