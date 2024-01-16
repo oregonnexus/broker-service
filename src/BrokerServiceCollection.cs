@@ -45,7 +45,7 @@ public static class BrokerServiceCollection //: IConnectorServiceCollection
         services.AddSingleton<WorkerResolver>();
         
         // Jobs
-        services.AddSingleton<SendRequest>();
+        services.AddScoped<SendRequest>();
         
         return services;
     }
