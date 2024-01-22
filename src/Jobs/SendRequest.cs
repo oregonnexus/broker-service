@@ -16,18 +16,21 @@ public class SendRequest
     private readonly IRepository<Request> _requestRepository;
     private readonly IRepository<Message> _messageRepository;
     private readonly IRepository<PayloadContent> _payloadContentRepository;
+    private readonly ILookupClient _lookupClient;
 
     public SendRequest( ILogger<SendRequest> logger, 
                         BrokerDbContext brokerDbContext,
                         IRepository<Request> requestRepository, 
                         IRepository<Message> messageRepository,
-                        IRepository<PayloadContent> payloadContentRepository)
+                        IRepository<PayloadContent> payloadContentRepository,
+                        ILookupClient lookupClient)
     {
         _logger = logger;
         _brokerDbContext = brokerDbContext;
         _requestRepository = requestRepository;
         _messageRepository = messageRepository;
         _payloadContentRepository = payloadContentRepository;
+        _lookupClient = lookupClient;
     }
     
     public async Task<string> Process(Request request)
@@ -58,12 +61,11 @@ public class SendRequest
         transaction.Commit();
 
         // Determine where to send the information
-        var to = new MailboxAddress("To", request.RequestManifest?.To?.Email);
+//        var to = new MailboxAddress("To", request.RequestManifest?.To?.Email);
 
-        _logger.LogInformation("Domain to find from {0}", to.Domain);
+//        _logger.LogInformation("Domain to find from {0}", to.Domain);
 
-        var lookup = new LookupClient();
-        var result = await lookup.QueryAsync("clackesd.k12.or.us", QueryType.TXT);
+        var result = await _lookupClient.QueryAsync("clackesd.k12.or.us", QueryType.TXT);
 
         if (result.Answers.Count > 0)
         {

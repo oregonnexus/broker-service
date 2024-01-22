@@ -1,0 +1,10 @@
+
+namespace OregonNexus.Broker.Service.Models;
+
+public class BrokerDnsTxtRecord
+{
+    public string? Version { get; set; }
+    public string? Host { get; set; }
+    public string? KeyAlgorithim { get; set; }
+    public string? PublicKey { get; set; }
+}
