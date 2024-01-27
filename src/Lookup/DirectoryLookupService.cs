@@ -46,7 +46,7 @@ public class DirectoryLookupService
         
         if (txtRecords.Count() > 0)
         {
-            var brokerTXTRecord = txtRecords.Where(x => x.Text.First().Contains("v=broker"))?.FirstOrDefault();
+            var brokerTXTRecord = txtRecords.Where(x => x.Text.First().Contains("v=edubroker"))?.FirstOrDefault();
 
             if (brokerTXTRecord is not null)
             {
@@ -57,7 +57,7 @@ public class DirectoryLookupService
         // Get directory list
         Guard.Against.Null(txtresult.Host, "host", "Unable to get host from broker TXT record.");
         _httpClient.BaseAddress = new Uri($"https://{txtresult.Host}");
-        var path = "/api/v1/directory/search?domain=" + HttpUtility.UrlEncode(searchDomain);
+        var path = "/" + stripPathSlashes(txtresult.Path) + "/api/v1/directory/search?domain=" + HttpUtility.UrlEncode(searchDomain);
         
         var client = await _httpClient.GetAsync(path);
 
@@ -72,7 +72,7 @@ public class DirectoryLookupService
 
     public BrokerDnsTxtRecord ParseBrokerTXTRecord(string txtRecord)
     {
-        // v=broker1; a=broker.host.org
+        // v=edubroker1; a=broker.host.org; href=/broker
 
         string[] parts = txtRecord.Trim().Split(";");
         var values = new Dictionary<string, string>();
@@ -87,8 +87,33 @@ public class DirectoryLookupService
         {
             Version = values.TryGetValue("v", out var v) ? v : null,
             Host = values.TryGetValue("a", out var a) ? a : null,
+            Path = values.TryGetValue("href", out var href) ? href : null,
             KeyAlgorithim = values.TryGetValue("k", out var k) ? k : null,
             PublicKey = values.TryGetValue("p", out var p) ? p : null
         };
+    }
+
+    private string stripPathSlashes(string? input)
+    {
+        if (input is null)
+        {
+            return "";
+        }
+
+        var text = input;
+
+        // Remove begining slash, if there is one
+        if (input.Substring(0,1) == "/")
+        {
+            text = text.Substring(1, text.Length - 1);
+        }
+
+        // Remove ending slash, if there is one
+        if (input.Substring(input.Length -1, -1) == "/")
+        {
+            text = text.Substring(input.Length -1, -1);
+        }
+
+        return text;
     }
 }
