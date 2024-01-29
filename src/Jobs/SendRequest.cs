@@ -6,6 +6,12 @@ using OregonNexus.Broker.Domain.Specifications;
 using OregonNexus.Broker.SharedKernel;
 using MimeKit;
 using DnsClient;
+using OregonNexus.Broker.Service.Lookup;
+using Ardalis.GuardClauses;
+using System.Text.Json;
+using System.Text;
+using System.Net.Http.Json;
+using OregonNexus.Broker.Service.Worker;
 
 namespace OregonNexus.Broker.Service.Jobs;
 
@@ -17,13 +23,21 @@ public class SendRequest
     private readonly IRepository<Message> _messageRepository;
     private readonly IRepository<PayloadContent> _payloadContentRepository;
     private readonly ILookupClient _lookupClient;
+    private readonly JobStatusService<SendRequest> _jobStatusService;
+    private readonly DirectoryLookupService _directoryLookupService;
+    private readonly MessageService _messageService;
+    private readonly HttpClient _httpClient;
 
     public SendRequest( ILogger<SendRequest> logger, 
                         BrokerDbContext brokerDbContext,
                         IRepository<Request> requestRepository, 
                         IRepository<Message> messageRepository,
                         IRepository<PayloadContent> payloadContentRepository,
-                        ILookupClient lookupClient)
+                        ILookupClient lookupClient,
+                        JobStatusService<SendRequest> jobStatusService,
+                        DirectoryLookupService directoryLookupService, 
+                        IHttpClientFactory httpClientFactory,
+                        MessageService messageService)
     {
         _logger = logger;
         _brokerDbContext = brokerDbContext;
@@ -31,54 +45,59 @@ public class SendRequest
         _messageRepository = messageRepository;
         _payloadContentRepository = payloadContentRepository;
         _lookupClient = lookupClient;
+        _jobStatusService = jobStatusService;
+        _directoryLookupService = directoryLookupService;
+        _messageService = messageService;
+        _httpClient = httpClientFactory.CreateClient("IgnoreSSL");
     }
     
-    public async Task<string> Process(Request request)
+    public async Task Process(Request request)
     {
-        _logger.LogInformation("Made it here!");
+        var message = await _messageService.Create(request);
+        var messageContent = JsonSerializer.Deserialize<Manifest>(message.MessageContents.ToJsonString()!);
 
-        using var transaction = _brokerDbContext.Database.BeginTransaction();
-
-        // Create Message
-        var message = new Message()
-        {
-            RequestId = request.Id,
-            RequestResponse = RequestResponse.Request
-        };
-        await _messageRepository.AddAsync(message);
-
-        // Move any payloadcontents (attachments) to message
-        var attachments = await _payloadContentRepository.ListAsync(new PayloadContentsByRequestId(request.Id));
-        if (attachments is not null && attachments.Count > 0)
-        {
-            foreach(var payloadContent in attachments)
-            {
-                payloadContent.MessageId = message.Id;
-                await _payloadContentRepository.UpdateAsync(payloadContent);
-            }
-        }
-
-        transaction.Commit();
+        Guard.Against.Null(messageContent, "Message did not convert to type Manifest");
+        Guard.Against.Null(messageContent?.To?.District?.Domain, "Domain is missing");
 
         // Determine where to send the information
-//        var to = new MailboxAddress("To", request.RequestManifest?.To?.Email);
+        _jobStatusService.UpdateRequestJobStatus(request, RequestStatus.Sending, "Resolving domain {0}", messageContent.To.District.Domain);
+        var brokerAddress = await _directoryLookupService.ResolveBrokerUrl(messageContent.To.District.Domain);
+        var url = $"https://{brokerAddress.Host}";
+        var path = "/" + _directoryLookupService.StripPathSlashes(brokerAddress.Path);
 
-//        _logger.LogInformation("Domain to find from {0}", to.Domain);
+        _jobStatusService.UpdateRequestJobStatus(request, RequestStatus.Sending, "Resolved domain {0}: url {1} | path {2}", messageContent.To.District.Domain, url, path);
 
-        var result = await _lookupClient.QueryAsync("clackesd.k12.or.us", QueryType.TXT);
+        // Prepare request
+        using MultipartFormDataContent multipartContent = new();
+        var jsonContent = JsonContent.Create(messageContent);
+        multipartContent.Add(jsonContent, "manifest");
 
-        if (result.Answers.Count > 0)
+        // Add on attachments
+        var attachments = await _payloadContentRepository.ListAsync(new PayloadContentsByMessageId(message.Id));
+        if (attachments is not null && attachments.Count > 0)
         {
-            foreach(var answer in result.Answers)
+            foreach(var attachment in attachments)
             {
-                _logger.LogInformation("DNS TXT entries found: {0}", answer.ToString());
+                multipartContent.Add(new ByteArrayContent(attachment.BlobContent), "files", attachment.FileName);
             }
         }
-        
 
-        // Call the http endpoint
-        
+        // Send Request
+        _httpClient.BaseAddress = new Uri(url);
+        var result = await _httpClient.PostAsync(path + "api/v1/requests", multipartContent);
 
-        return "Made it!";
+        var content = await result.Content.ReadAsStringAsync();
+
+        _jobStatusService.UpdateRequestJobStatus(request, RequestStatus.Sending, "Sent request result: {0} / {1}", result.StatusCode, content);
+
+        // mark message as sent
+        await _messageService.MarkSent(message);
+
+        // Update request to sent
+        var dbRequest = await _requestRepository.GetByIdAsync(request.Id);
+        dbRequest.InitialRequestSentDate = DateTime.UtcNow;
+        await _requestRepository.UpdateAsync(dbRequest);
+
+        _jobStatusService.UpdateRequestJobStatus(request, RequestStatus.Sent, "Finished updating request.");
     }
 }

@@ -38,6 +38,26 @@ public class DirectoryLookupService
             throw new ArgumentException("{0} is not a valid domain", searchDomain);
         }
         
+        var txtresult = await ResolveBrokerUrl(searchDomain);
+
+        // Get directory list
+        Guard.Against.Null(txtresult.Host, "host", "Unable to get host from broker TXT record.");
+        
+        _httpClient.BaseAddress = new Uri($"https://{txtresult.Host}");
+        var path = "/" + StripPathSlashes(txtresult.Path) + "/api/v1/directory/search?domain=" + HttpUtility.UrlEncode(searchDomain);
+        var client = await _httpClient.GetAsync(path);
+
+        var result = await client.Content.ReadFromJsonAsync<District>();
+        if (result is not null)
+        {
+            return result;
+        }
+
+        return new District();
+    }
+
+    public async Task<BrokerDnsTxtRecord> ResolveBrokerUrl(string searchDomain)
+    {
         var txtresult = new BrokerDnsTxtRecord();
         
         var dnsresult = await _lookupClient.QueryAsync(searchDomain, QueryType.TXT);
@@ -54,20 +74,7 @@ public class DirectoryLookupService
             }
         }
 
-        // Get directory list
-        Guard.Against.Null(txtresult.Host, "host", "Unable to get host from broker TXT record.");
-        _httpClient.BaseAddress = new Uri($"https://{txtresult.Host}");
-        var path = "/" + stripPathSlashes(txtresult.Path) + "/api/v1/directory/search?domain=" + HttpUtility.UrlEncode(searchDomain);
-        
-        var client = await _httpClient.GetAsync(path);
-
-        var result = await client.Content.ReadFromJsonAsync<District>();
-        if (result is not null)
-        {
-            return result;
-        }
-
-        return new District();
+        return txtresult;
     }
 
     public BrokerDnsTxtRecord ParseBrokerTXTRecord(string txtRecord)
@@ -93,7 +100,7 @@ public class DirectoryLookupService
         };
     }
 
-    private string stripPathSlashes(string? input)
+    public string StripPathSlashes(string? input)
     {
         if (input is null)
         {

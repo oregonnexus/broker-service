@@ -31,7 +31,6 @@ public class WorkerResolver
             {
                 case RequestStatus.WaitingToSend:
                     var sendRequest = (SendRequest)scoped.ServiceProvider.GetService(typeof(SendRequest))!;
-                    _logger.LogInformation("{0}: Begin sending request.", request.Id);
                     await sendRequest.Process(request);
                     break;
             }
