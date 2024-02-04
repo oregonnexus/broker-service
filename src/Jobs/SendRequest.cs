@@ -78,7 +78,7 @@ public class SendRequest
         {
             foreach(var attachment in attachments)
             {
-                multipartContent.Add(new ByteArrayContent(attachment.BlobContent), "files", attachment.FileName);
+                multipartContent.Add(new ByteArrayContent(attachment.BlobContent!), "files", attachment.FileName!);
             }
         }
 

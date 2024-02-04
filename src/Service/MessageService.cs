@@ -1,4 +1,5 @@
 using System.Text.Json;
+using Ardalis.GuardClauses;
 using OregonNexus.Broker.Data;
 using OregonNexus.Broker.Domain;
 using OregonNexus.Broker.Domain.Specifications;
@@ -11,16 +12,19 @@ public class MessageService
 {
     private readonly IRepository<Message> _messageRepo;
     private readonly IRepository<PayloadContent> _payloadContentRepository;
+    private readonly IRepository<Request> _requestRepo;
     private readonly JobStatusService<MessageService> _jobStatusService;
     private readonly BrokerDbContext _brokerDbContext;
 
     public MessageService(IRepository<Message> messageRepo,
                         IRepository<PayloadContent> payloadContentRepository,
+                        IRepository<Request> requestRepo,
                         JobStatusService<MessageService> jobStatusService,
                         BrokerDbContext brokerDbContext)
     {
         _messageRepo = messageRepo;
         _payloadContentRepository = payloadContentRepository;
+        _requestRepo = requestRepo;
         _jobStatusService = jobStatusService;
         _brokerDbContext = brokerDbContext;
     }
@@ -29,17 +33,23 @@ public class MessageService
     {
         _jobStatusService.UpdateRequestJobStatus(request, RequestStatus.Sending, "Create message and move attachments");
 
+        Guard.Against.Null(request);
+
         using var transaction = _brokerDbContext.Database.BeginTransaction();
 
         // Create Message
         var message = new Message()
         {
             RequestId = request.Id,
-            RequestResponse = RequestResponse.Request,
-            MessageContents = JsonDocument.Parse(JsonSerializer.Serialize(request.RequestManifest))
+            RequestResponse = RequestResponse.Request
         };
 
         await _messageRepo.AddAsync(message);
+
+        if (request.RequestManifest?.Contents is null)
+        {
+            request.RequestManifest!.Contents = new List<ManifestContent>();
+        }
 
         // Move any payloadcontents (attachments) to message
         var attachments = await _payloadContentRepository.ListAsync(new PayloadContentsByRequestId(request.Id));
@@ -49,9 +59,21 @@ public class MessageService
             {
                 payloadContent.MessageId = message.Id;
                 await _payloadContentRepository.UpdateAsync(payloadContent);
+                request.RequestManifest?.Contents?.Add(new ManifestContent() {
+                    Id = payloadContent.Id,
+                    ContentType = payloadContent.ContentType!,
+                    FileName = payloadContent.FileName!
+                });
             }
         }
 
+        // Append to contents of manifest
+        await _requestRepo.UpdateAsync(request);
+
+        // Move request manifest to message
+        message.MessageContents = JsonDocument.Parse(JsonSerializer.Serialize(request.RequestManifest));
+        await _messageRepo.UpdateAsync(message);
+    
         transaction.Commit();
 
         return message;
