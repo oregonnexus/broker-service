@@ -19,7 +19,17 @@ public class ManifestService
     
     public async Task<Manifest> AddFrom(Request request, Guid fromUserId)
     {
-        var manifest = request.RequestManifest;
+        Manifest? manifest = null;
+
+        if (request.IncomingOutgoing == IncomingOutgoing.Incoming)
+        {
+            manifest = request.RequestManifest!;
+        } else if (request.IncomingOutgoing == IncomingOutgoing.Outgoing)
+        {
+            manifest = request.ResponseManifest!;
+        }
+
+        Guard.Against.Null(manifest, "Manifest could not be set from request.");
 
         // Find user
         var user = await _user.GetByIdAsync(fromUserId);
@@ -28,12 +38,12 @@ public class ManifestService
         Guard.Against.Null(user, "User not found.");
 
         // Add From
-        manifest!.From = new RequestAddress()
+        manifest.From = new RequestAddress()
         {
             District = new District()
             {
-                Id = request.EducationOrganization.ParentOrganizationId.Value,
-                Name = request.EducationOrganization.ParentOrganization?.Name,
+                Id = request.EducationOrganization!.ParentOrganizationId!.Value,
+                Name = request.EducationOrganization!.ParentOrganization!.Name,
                 Number = request.EducationOrganization.ParentOrganization?.Number,
                 Domain = request.EducationOrganization.ParentOrganization?.Domain
             },

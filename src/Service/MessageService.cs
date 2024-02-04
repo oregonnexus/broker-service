@@ -35,7 +35,7 @@ public class MessageService
 
         Guard.Against.Null(request);
 
-        using var transaction = _brokerDbContext.Database.BeginTransaction();
+        var transaction = _brokerDbContext.Database.BeginTransaction();
 
         // Create Message
         var message = new Message()
@@ -46,9 +46,12 @@ public class MessageService
 
         await _messageRepo.AddAsync(message);
 
-        if (request.RequestManifest?.Contents is null)
+        if (request.IncomingOutgoing == IncomingOutgoing.Incoming && request.RequestManifest?.Contents is null)
         {
             request.RequestManifest!.Contents = new List<ManifestContent>();
+        } else if (request.IncomingOutgoing == IncomingOutgoing.Outgoing && request.ResponseManifest?.Contents is null)
+        {
+            request.ResponseManifest!.Contents = new List<ManifestContent>();
         }
 
         // Move any payloadcontents (attachments) to message
@@ -59,11 +62,25 @@ public class MessageService
             {
                 payloadContent.MessageId = message.Id;
                 await _payloadContentRepository.UpdateAsync(payloadContent);
-                request.RequestManifest?.Contents?.Add(new ManifestContent() {
-                    Id = payloadContent.Id,
-                    ContentType = payloadContent.ContentType!,
-                    FileName = payloadContent.FileName!
-                });
+                
+                if (request.IncomingOutgoing == IncomingOutgoing.Incoming)
+                {
+                    request.RequestManifest?.Contents?.Add(new ManifestContent() {
+                        Id = payloadContent.Id,
+                        ContentType = payloadContent.ContentType!,
+                        FileName = payloadContent.FileName!
+                    });
+                }
+                else if (request.IncomingOutgoing == IncomingOutgoing.Outgoing)
+                {
+                    request.ResponseManifest?.Contents?.Add(new ManifestContent() {
+                        Id = payloadContent.Id,
+                        ContentType = payloadContent.ContentType!,
+                        FileName = payloadContent.FileName!
+                    });
+                }
+                
+                
             }
         }
 
@@ -71,10 +88,18 @@ public class MessageService
         await _requestRepo.UpdateAsync(request);
 
         // Move request manifest to message
-        message.MessageContents = JsonDocument.Parse(JsonSerializer.Serialize(request.RequestManifest));
+        if (request.IncomingOutgoing == IncomingOutgoing.Incoming)
+        {
+            message.MessageContents = JsonDocument.Parse(JsonSerializer.Serialize(request.RequestManifest));
+        } else if (request.IncomingOutgoing == IncomingOutgoing.Outgoing)
+        {
+            message.MessageContents = JsonDocument.Parse(JsonSerializer.Serialize(request.ResponseManifest));
+        }
         await _messageRepo.UpdateAsync(message);
     
         transaction.Commit();
+
+        transaction.Dispose();
 
         return message;
     }
