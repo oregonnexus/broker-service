@@ -12,6 +12,7 @@ using OregonNexus.Broker.SharedKernel;
 using OregonNexus.Broker.Connector.Resolvers;
 using OregonNexus.Broker.Connector.StudentLookup;
 using OregonNexus.Broker.Connector.Student;
+using Ardalis.GuardClauses;
 
 namespace OregonNexus.Broker.Service.Resolvers;
 
@@ -32,6 +33,8 @@ public class StudentLookupResolver
             .Where(x => x.GetInterface("IStudentLookupService") != null
                      && x.IsAbstract == false)
             .FirstOrDefault();
+
+        Guard.Against.Null(studentLookupServiceType, "", "Could not get student lookup type");
         
         var connectorStudentLookupService = 
             ActivatorUtilities.CreateInstance(_serviceProvider, studentLookupServiceType);

@@ -22,7 +22,7 @@ public class ConfigurationSerializer
     public async Task<IConfiguration> DeseralizeAsync(Type connectorConfigType, Guid focusEducationOrganization)
     {
         var iconfigModel = ActivatorUtilities.CreateInstance(_serviceProvider, connectorConfigType) as IConfiguration;
-        var objTypeName = iconfigModel.GetType().FullName;
+        var objTypeName = iconfigModel!.GetType().FullName;
         
         // Get existing object
         if (connectorConfigType.Assembly.GetName().Name! != null) {
@@ -83,7 +83,7 @@ public class ConfigurationSerializer
         // }
         // Serialize settings object
         dynamic objWrapper = new ExpandoObject();
-        ((IDictionary<String, Object>)objWrapper)[objTypeName] = obj;
+        ((IDictionary<String, Object>)objWrapper)[objTypeName!] = obj;
 
         var seralizedIConfigModel = JsonSerializer.SerializeToDocument<dynamic>(objWrapper);
         repoConnectorSettings.Settings = seralizedIConfigModel;
@@ -94,7 +94,7 @@ public class ConfigurationSerializer
         else
         {
             repoConnectorSettings.EducationOrganizationId = focusEducationOrganization;
-            repoConnectorSettings.Connector = objAssemblyName;
+            repoConnectorSettings.Connector = objAssemblyName!;
             await _repo.AddAsync(repoConnectorSettings);
         }
 

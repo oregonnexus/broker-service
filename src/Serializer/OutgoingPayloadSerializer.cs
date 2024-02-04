@@ -22,13 +22,13 @@ public class OutgoingPayloadSerializer
     public async Task<IPayload> DeseralizeAsync(Type connectorConfigType, Guid focusEducationOrganization)
     {
         var iPayloadModel = ActivatorUtilities.CreateInstance(_serviceProvider, connectorConfigType) as IPayload;
-        var objTypeName = iPayloadModel.GetType().FullName;
+        var objTypeName = iPayloadModel!.GetType().FullName;
 
         // Get existing object
         if (connectorConfigType.Assembly.GetName().Name != null)
         {
             var connectorSpec = new PayloadByNameAndEdOrgIdSpec(
-                connectorConfigType?.FullName,
+                connectorConfigType?.FullName!,
                 focusEducationOrganization);
             var repoConnectorSettings = await _repo.FirstOrDefaultAsync(connectorSpec);
             if (repoConnectorSettings is not null)
@@ -69,10 +69,10 @@ public class OutgoingPayloadSerializer
         }
 
         dynamic objWrapper = new ExpandoObject();
-        ((IDictionary<string, object>)objWrapper)[objTypeName] = obj;
+        ((IDictionary<string, object>)objWrapper)[objTypeName!] = obj;
 
         var seralizedIConfigModel = JsonSerializer.SerializeToDocument<dynamic>(objWrapper);
-        repoConnectorSettings.IncomingPayloadSettings.PayloadContents = seralizedIConfigModel;
+        repoConnectorSettings.IncomingPayloadSettings!.PayloadContents = seralizedIConfigModel;
 
         if (objAssemblyName != null && repoConnectorSettings.Id != Guid.Empty)
         {
@@ -81,7 +81,7 @@ public class OutgoingPayloadSerializer
         else
         {
             repoConnectorSettings.EducationOrganizationId = focusEducationOrganization;
-            repoConnectorSettings.Payload = objAssemblyName;
+            repoConnectorSettings.Payload = objAssemblyName!;
             await _repo.AddAsync(repoConnectorSettings);
         }
 

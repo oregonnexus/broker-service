@@ -17,7 +17,7 @@ public class PayloadContentTypeService
     {
         var connectors = _connectorLoader.Connectors;
 
-        var payloadContentTypes = _connectorLoader.GetContentTypes().ToList();
+        var payloadContentTypes = _connectorLoader.GetContentTypes()!.ToList();
 
         var list = new List<PayloadContentTypeDisplay>();
         
@@ -27,14 +27,14 @@ public class PayloadContentTypeService
             
             var display = new PayloadContentTypeDisplay
             {
-                DisplayName = ((DisplayNameAttribute)connector
+                DisplayName = ((DisplayNameAttribute)connector!
                     .GetCustomAttributes(false)
                     .First(x => x.GetType() == typeof(DisplayNameAttribute))).DisplayName + " / " 
                   + ((DisplayNameAttribute)payloadContentType
                     .GetCustomAttributes(false)
                     .First(x => x.GetType() == typeof(DisplayNameAttribute))).DisplayName ?? payloadContentType.Name,
                 Name = payloadContentType.Name,
-                FullName = payloadContentType.FullName,
+                FullName = payloadContentType.FullName!,
                 AllowMultiple = (bool?)payloadContentType.GetProperty("AllowMultiple")?.GetValue(null) ?? false,
                 AllowConfiguration = (bool?)payloadContentType.GetProperty("AllowConfiguration")?.GetValue(null) ?? false
             };
