@@ -31,7 +31,7 @@ public class MessageService
 
     public async Task<Message> Create(Request request)
     {
-        _jobStatusService.UpdateRequestJobStatus(request, RequestStatus.Sending, "Create message and move attachments");
+        await _jobStatusService.UpdateRequestJobStatus(request, RequestStatus.Sending, "Create message and move attachments");
 
         Guard.Against.Null(request);
 
@@ -79,8 +79,6 @@ public class MessageService
                         FileName = payloadContent.FileName!
                     });
                 }
-                
-                
             }
         }
 
@@ -98,8 +96,6 @@ public class MessageService
         await _messageRepo.UpdateAsync(message);
     
         transaction.Commit();
-
-        transaction.Dispose();
 
         return message;
     }

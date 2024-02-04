@@ -9,13 +9,11 @@ namespace OregonNexus.Broker.Service.Resolvers;
 
 public class WorkerResolver
 {
-    private readonly IRepository<Request> _requestsRepository;
     private readonly IServiceProvider _serviceProvider;
     private readonly ILogger<WorkerResolver> _logger;
-    
-    public WorkerResolver(ILogger<WorkerResolver> logger, IRepository<Request> requestsRepository, IServiceProvider serviceProvider)
+
+    public WorkerResolver(IServiceProvider serviceProvider, ILogger<WorkerResolver> logger)
     {
-        _requestsRepository = requestsRepository;
         _serviceProvider = serviceProvider;
         _logger = logger;
     }
@@ -26,6 +24,7 @@ public class WorkerResolver
         
         using (var scoped = _serviceProvider.CreateScope())
         {
+            //_logger.LogInformation("Start worker scope.");
             // Figure out which job to execute based on the state of the request
             switch (request.RequestStatus)
             {
@@ -34,6 +33,7 @@ public class WorkerResolver
                     await sendRequest.Process(request);
                     break;
             }
+            //_logger.LogInformation("End worker scope.");
         }
         
         return request;

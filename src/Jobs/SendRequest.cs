@@ -60,12 +60,12 @@ public class SendRequest
         Guard.Against.Null(messageContent?.To?.District?.Domain, "Domain is missing");
 
         // Determine where to send the information
-        _jobStatusService.UpdateRequestJobStatus(request, RequestStatus.Sending, "Resolving domain {0}", messageContent.To.District.Domain);
+        await _jobStatusService.UpdateRequestJobStatus(request, RequestStatus.Sending, "Resolving domain {0}", messageContent.To.District.Domain);
         var brokerAddress = await _directoryLookupService.ResolveBrokerUrl(messageContent.To.District.Domain);
         var url = $"https://{brokerAddress.Host}";
         var path = "/" + _directoryLookupService.StripPathSlashes(brokerAddress.Path);
 
-        _jobStatusService.UpdateRequestJobStatus(request, RequestStatus.Sending, "Resolved domain {0}: url {1} | path {2}", messageContent.To.District.Domain, url, path);
+        await _jobStatusService.UpdateRequestJobStatus(request, RequestStatus.Sending, "Resolved domain {0}: url {1} | path {2}", messageContent.To.District.Domain, url, path);
 
         // Prepare request
         using MultipartFormDataContent multipartContent = new();
@@ -88,16 +88,16 @@ public class SendRequest
 
         var content = await result.Content.ReadAsStringAsync();
 
-        _jobStatusService.UpdateRequestJobStatus(request, RequestStatus.Sending, "Sent request result: {0} / {1}", result.StatusCode, content);
+        await _jobStatusService.UpdateRequestJobStatus(request, RequestStatus.Sending, "Sent request result: {0} / {1}", result.StatusCode, content);
 
         // mark message as sent
         await _messageService.MarkSent(message);
 
         // Update request to sent
         var dbRequest = await _requestRepository.GetByIdAsync(request.Id);
-        dbRequest.InitialRequestSentDate = DateTime.UtcNow;
+        dbRequest!.InitialRequestSentDate = DateTime.UtcNow;
         await _requestRepository.UpdateAsync(dbRequest);
 
-        _jobStatusService.UpdateRequestJobStatus(request, RequestStatus.Sent, "Finished updating request.");
+        await _jobStatusService.UpdateRequestJobStatus(request, RequestStatus.Sent, "Finished updating request.");
     }
 }
