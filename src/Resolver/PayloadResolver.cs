@@ -1,44 +1,40 @@
-using System.Reflection;
-using System.Text.Json;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using OregonNexus.Broker.Connector.Payload;
-using OregonNexus.Broker.Connector.PayloadContentTypes;
 using OregonNexus.Broker.Domain;
 using OregonNexus.Broker.Domain.Specifications;
 using OregonNexus.Broker.SharedKernel;
 using OregonNexus.Broker.Connector.Resolvers;
 using Ardalis.GuardClauses;
+using OregonNexus.Broker.Connector.PayloadContentTypes;
 
 namespace OregonNexus.Broker.Service.Resolvers;
 
 public class PayloadResolver : IPayloadResolver
 {
     private readonly IRepository<EducationOrganizationPayloadSettings> _edOrgPayloadSettings;
-    private readonly FocusEducationOrganizationResolver _focusEdOrg;
     private readonly DistrictEducationOrganizationResolver _districtEdOrg;
     private readonly IServiceProvider _serviceProvider;
 
     public PayloadResolver(
         IRepository<EducationOrganizationPayloadSettings> edOrgPayloadSettings, 
-        FocusEducationOrganizationResolver focusEdOrg, 
         DistrictEducationOrganizationResolver districtEdOrg,
         IServiceProvider serviceProvider
     )
     {
         _edOrgPayloadSettings = edOrgPayloadSettings;
-        _focusEdOrg = focusEdOrg;
         _districtEdOrg = districtEdOrg;
         _serviceProvider = serviceProvider;
     }
     
-    public async Task<IncomingPayloadSettings> FetchIncomingPayloadSettingsAsync<T>() where T : IPayload
+    public async Task<IncomingPayloadSettings> FetchIncomingPayloadSettingsAsync<T>(Guid educationOrganizationId) where T : IPayload
     {
-        Guard.Against.Null(typeof(T));
+        return await FetchIncomingPayloadSettingsAsync(typeof(T), educationOrganizationId);
+    }
+
+    public async Task<IncomingPayloadSettings> FetchIncomingPayloadSettingsAsync(Type t, Guid educationOrganizationId)
+    {
+        Guard.Against.Null(t);
         
-        var connectorSpec = new PayloadSettingsByNameAndEdOrgIdSpec(typeof(T).FullName!, _districtEdOrg.Resolve(await _focusEdOrg.Resolve()).Id);
+        var connectorSpec = new PayloadSettingsByNameAndEdOrgIdSpec(t.FullName!, educationOrganizationId);
         var repoConnectorSettings = await _edOrgPayloadSettings.FirstOrDefaultAsync(connectorSpec);
         
         Guard.Against.Null(repoConnectorSettings);
@@ -47,11 +43,31 @@ public class PayloadResolver : IPayloadResolver
         return repoConnectorSettings!.IncomingPayloadSettings;
     }
 
-    public async Task<OutgoingPayloadSettings> FetchOutgoingPayloadSettingsAsync<T>() where T : IPayload
+    public async Task<OutgoingPayloadSettings> FetchOutgoingPayloadSettingsAsync<T>(Guid educationOrganizationId) where T : IPayload
     {
-        Guard.Against.Null(typeof(T));
+        return await FetchOutgoingPayloadSettingsAsync(typeof(T), educationOrganizationId);
+    }
 
-        var connectorSpec = new PayloadSettingsByNameAndEdOrgIdSpec(typeof(T).FullName!, _districtEdOrg.Resolve(await _focusEdOrg.Resolve()).Id);
+    public async Task<OutgoingPayloadSettings> FetchOutgoingPayloadSettingsAsync(string payloadType, Guid educationOrganizationId)
+    {
+        var types = AppDomain.CurrentDomain.GetAssemblies()
+                .SelectMany(s => s.GetExportedTypes())
+                .Where(p => p.FullName == payloadType);
+
+//p => p.GetInterface(nameof(PayloadContentType)) is not null 
+
+        var foundPayloadType = types.FirstOrDefault();
+
+        Guard.Against.Null(foundPayloadType, "Unable to resolve payloadType");
+        
+        return await FetchOutgoingPayloadSettingsAsync(foundPayloadType, educationOrganizationId);
+    }
+
+    public async Task<OutgoingPayloadSettings> FetchOutgoingPayloadSettingsAsync(Type t, Guid educationOrganizationId)
+    {
+        Guard.Against.Null(t);
+
+        var connectorSpec = new PayloadSettingsByNameAndEdOrgIdSpec(t.FullName!, educationOrganizationId);
         var repoConnectorSettings = await _edOrgPayloadSettings.FirstOrDefaultAsync(connectorSpec);
 
         Guard.Against.Null(repoConnectorSettings);

@@ -13,13 +13,18 @@ public class StudentLookupService
 {
     private readonly IPayloadResolver _payloadResolver;
     private readonly StudentLookupResolver _studentLookupResolver;
+    private readonly FocusEducationOrganizationResolver _focusEducationOrganizationResolver;
     private readonly ConnectorLoader _connectorLoader;
     
-    public StudentLookupService(ConnectorLoader connectorLoader, IPayloadResolver payloadResolver, StudentLookupResolver studentLookupResolver)
+    public StudentLookupService(ConnectorLoader connectorLoader, 
+        IPayloadResolver payloadResolver, 
+        StudentLookupResolver studentLookupResolver,
+        FocusEducationOrganizationResolver focusEducationOrganizationResolver)
     {
         _connectorLoader = connectorLoader;
         _payloadResolver = payloadResolver;
         _studentLookupResolver = studentLookupResolver;
+        _focusEducationOrganizationResolver = focusEducationOrganizationResolver;
     }
 
     public async Task<List<StudentLookupResult>> SearchAsync(PayloadDirection payloadDirection, string searchParameter)
@@ -28,7 +33,7 @@ public class StudentLookupService
 
         if (payloadDirection == PayloadDirection.Incoming)
         {
-            var payloadSettings = await _payloadResolver.FetchIncomingPayloadSettingsAsync<StudentCumulativeRecord>();
+            var payloadSettings = await _payloadResolver.FetchIncomingPayloadSettingsAsync<StudentCumulativeRecord>((await _focusEducationOrganizationResolver.Resolve()).Id);
 
             if (payloadSettings.StudentInformationSystem is null)
             {
@@ -40,7 +45,7 @@ public class StudentLookupService
 
         if (payloadDirection == PayloadDirection.Outgoing)
         {
-            var payloadSettings = await _payloadResolver.FetchOutgoingPayloadSettingsAsync<StudentCumulativeRecord>();
+            var payloadSettings = await _payloadResolver.FetchOutgoingPayloadSettingsAsync<StudentCumulativeRecord>((await _focusEducationOrganizationResolver.Resolve()).Id);
 
             if (payloadSettings.StudentLookupConnector is null)
             {

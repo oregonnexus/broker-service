@@ -13,13 +13,18 @@ public class StudentService
 {
     private readonly IPayloadResolver _payloadResolver;
     private readonly StudentResolver _studentResolver;
+    private readonly FocusEducationOrganizationResolver _focusEducationOrganizationResolver;
     private readonly ConnectorLoader _connectorLoader;
     
-    public StudentService(ConnectorLoader connectorLoader, IPayloadResolver payloadResolver, StudentResolver studentResolver)
+    public StudentService(ConnectorLoader connectorLoader, 
+                    IPayloadResolver payloadResolver, 
+                    StudentResolver studentResolver, 
+                    FocusEducationOrganizationResolver focusEducationOrganizationResolver)
     {
         _connectorLoader = connectorLoader;
         _payloadResolver = payloadResolver;
         _studentResolver = studentResolver;
+        _focusEducationOrganizationResolver = focusEducationOrganizationResolver;
     }
 
     public async Task<IStudent?> FetchAsync(PayloadDirection payloadDirection, Student studentToFetch)
@@ -28,7 +33,7 @@ public class StudentService
 
         if (payloadDirection == PayloadDirection.Incoming)
         {
-            var payloadSettings = await _payloadResolver.FetchIncomingPayloadSettingsAsync<StudentCumulativeRecord>();
+            var payloadSettings = await _payloadResolver.FetchIncomingPayloadSettingsAsync<StudentCumulativeRecord>((await _focusEducationOrganizationResolver.Resolve()).Id);
 
             if (payloadSettings.StudentInformationSystem is null)
             {
@@ -40,7 +45,7 @@ public class StudentService
 
         if (payloadDirection == PayloadDirection.Outgoing)
         {
-            var payloadSettings = await _payloadResolver.FetchOutgoingPayloadSettingsAsync<StudentCumulativeRecord>();
+            var payloadSettings = await _payloadResolver.FetchOutgoingPayloadSettingsAsync<StudentCumulativeRecord>((await _focusEducationOrganizationResolver.Resolve()).Id);
 
             if (payloadSettings.StudentLookupConnector is null)
             {

@@ -54,10 +54,17 @@ public static class BrokerServiceCollection //: IConnectorServiceCollection
         services.AddScoped<MessageService>();
         
         // Resolvers
+        services.AddScoped<IConfigurationResolver, ConfigurationResolver>();
         services.AddSingleton<WorkerResolver>();
+        services.AddScoped<IPayloadResolver, PayloadResolver>();
+        services.AddScoped<PayloadResolver>();
+        services.AddScoped<FocusEducationOrganizationResolver>();
+        services.AddScoped<DistrictEducationOrganizationResolver>();
+        services.AddScoped<PayloadJobResolver>();
         
         // Jobs
         services.AddScoped<SendRequest>();
+        services.AddScoped<PayloadContentLoader>();
 
         // Worker
         services.AddScoped(typeof(JobStatusService<>));

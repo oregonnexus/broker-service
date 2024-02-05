@@ -32,6 +32,10 @@ public class WorkerResolver
                     var sendRequest = (SendRequest)scoped.ServiceProvider.GetService(typeof(SendRequest))!;
                     await sendRequest.Process(request);
                     break;
+                case RequestStatus.WaitingToLoad:
+                    var payloadContentLoader = (PayloadContentLoader)scoped.ServiceProvider.GetService(typeof(PayloadContentLoader))!;
+                    await payloadContentLoader.Process(request);
+                    break;
             }
             //_logger.LogInformation("End worker scope.");
         }
