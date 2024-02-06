@@ -1,11 +1,4 @@
-using System.Reflection;
-using System.Text.Json;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using OregonNexus.Broker.Connector.Payload;
-using OregonNexus.Broker.Connector.PayloadContentTypes;
 using OregonNexus.Broker.Domain;
 using OregonNexus.Broker.Domain.Specifications;
 using OregonNexus.Broker.SharedKernel;
@@ -36,13 +29,18 @@ public class ConfigurationResolver : IConfigurationResolver
     
     public async Task<T> FetchConnectorSettingsAsync<T>()
     {
+        return await FetchConnectorSettingsAsync<T>(_districtEdOrg.Resolve(await _focusEdOrg.Resolve()).Id);
+    }
+
+    public async Task<T> FetchConnectorSettingsAsync<T>(Guid educationOrganizationId)
+    {
         var iconfigModel = (T)ActivatorUtilities.CreateInstance(_serviceProvider, typeof(T));
         var objTypeName = iconfigModel.GetType().FullName;
         
         Guard.Against.Null(typeof(T).Assembly.GetName().Name);
 
         // Get existing object
-        var connectorSpec = new ConnectorByNameAndEdOrgIdSpec(typeof(T).Assembly.GetName().Name!, _districtEdOrg.Resolve(await _focusEdOrg.Resolve()).Id);
+        var connectorSpec = new ConnectorByNameAndEdOrgIdSpec(typeof(T).Assembly.GetName().Name!, educationOrganizationId);
         var repoConnectorSettings = await _edOrgConnectorSettings.FirstOrDefaultAsync(connectorSpec);
 
         Guard.Against.Null(repoConnectorSettings);

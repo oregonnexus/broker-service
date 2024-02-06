@@ -4,7 +4,6 @@ using OregonNexus.Broker.Domain.Specifications;
 using OregonNexus.Broker.SharedKernel;
 using OregonNexus.Broker.Connector.Resolvers;
 using Ardalis.GuardClauses;
-using OregonNexus.Broker.Connector.PayloadContentTypes;
 
 namespace OregonNexus.Broker.Service.Resolvers;
 

@@ -22,15 +22,18 @@ public class PayloadContentLoader
     private readonly PayloadResolver _payloadResolver;
     private readonly PayloadJobResolver _payloadJobResolver;
     private readonly JobStatusService<SendRequest> _jobStatusService;
+    private readonly IRepository<PayloadContent> _payloadContentRepository;
 
     public PayloadContentLoader(
             PayloadResolver payloadResolver,
             PayloadJobResolver payloadJobResolver,
-            JobStatusService<SendRequest> jobStatusService)
+            JobStatusService<SendRequest> jobStatusService,
+            IRepository<PayloadContent> payloadContentRepository)
     {
         _payloadResolver = payloadResolver;
         _payloadJobResolver = payloadJobResolver;
         _jobStatusService = jobStatusService;
+        _payloadContentRepository = payloadContentRepository;
     }
     
     public async Task Process(Request request)
@@ -58,9 +61,19 @@ public class PayloadContentLoader
             await _jobStatusService.UpdateRequestJobStatus(request, RequestStatus.Loading, "Resolved job to exeucte: {0}", jobToExecute.GetType().FullName);
 
             // Execute the job
-            jobToExecute.ExecuteAsync<Type.GetType(outgoingPayloadContent.PayloadContentType)>();
+            var result = await jobToExecute.ExecuteAsync(request.Student?.Student?.StudentNumber!, request.EducationOrganization!.ParentOrganizationId!.Value);
+            await _jobStatusService.UpdateRequestJobStatus(request, RequestStatus.Loading, "Recevied result: {0}", jobToExecute.GetType().FullName);
 
             // Save the result
+            var payloadContent = new PayloadContent()
+            {
+                RequestId = request.Id,
+                JsonContent = JsonDocument.Parse(result.Content),
+                ContentType = result.ContentType,
+                FileName =  $"{outgoingPayloadContent.PayloadContentType}.json"
+            };
+            await _payloadContentRepository.AddAsync(payloadContent);
+            await _jobStatusService.UpdateRequestJobStatus(request, RequestStatus.Loading, "Saved payload content: {0}", jobToExecute.GetType().FullName);
         }
 
         await _jobStatusService.UpdateRequestJobStatus(request, RequestStatus.Loaded, "Finished updating request.");
