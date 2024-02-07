@@ -1,19 +1,8 @@
-using System.Net.Mail;
-using Microsoft.Extensions.Logging;
-using OregonNexus.Broker.Data;
 using OregonNexus.Broker.Domain;
-using OregonNexus.Broker.Domain.Specifications;
 using OregonNexus.Broker.SharedKernel;
-using MimeKit;
-using DnsClient;
-using OregonNexus.Broker.Service.Lookup;
-using Ardalis.GuardClauses;
 using System.Text.Json;
-using System.Text;
-using System.Net.Http.Json;
 using OregonNexus.Broker.Service.Worker;
 using OregonNexus.Broker.Service.Resolvers;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace OregonNexus.Broker.Service.Jobs;
 
