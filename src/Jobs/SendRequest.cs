@@ -78,7 +78,14 @@ public class SendRequest
         {
             foreach(var attachment in attachments)
             {
-                multipartContent.Add(new ByteArrayContent(attachment.BlobContent!), "files", attachment.FileName!);
+                if (attachment.BlobContent != null)
+                {
+                    multipartContent.Add(new ByteArrayContent(attachment.BlobContent!), "files", attachment.FileName!);
+                }
+                if (attachment.JsonContent != null)
+                {
+                    multipartContent.Add(new StringContent(JsonSerializer.Serialize(attachment.JsonContent)), "files", attachment.FileName!);
+                }
             }
         }
 

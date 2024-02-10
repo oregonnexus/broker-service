@@ -33,7 +33,7 @@ public class PayloadResolver : IPayloadResolver
     {
         Guard.Against.Null(t);
         
-        var connectorSpec = new PayloadSettingsByNameAndEdOrgIdSpec(t.FullName!, educationOrganizationId);
+        var connectorSpec = new PayloadSettingsByNameAndEdOrgIdSpec(t.FullName!, await _districtEdOrg.Resolve(educationOrganizationId));
         var repoConnectorSettings = await _edOrgPayloadSettings.FirstOrDefaultAsync(connectorSpec);
         
         Guard.Against.Null(repoConnectorSettings);
@@ -53,8 +53,6 @@ public class PayloadResolver : IPayloadResolver
                 .SelectMany(s => s.GetExportedTypes())
                 .Where(p => p.FullName == payloadType);
 
-//p => p.GetInterface(nameof(PayloadContentType)) is not null 
-
         var foundPayloadType = types.FirstOrDefault();
 
         Guard.Against.Null(foundPayloadType, "Unable to resolve payloadType");
@@ -66,7 +64,7 @@ public class PayloadResolver : IPayloadResolver
     {
         Guard.Against.Null(t);
 
-        var connectorSpec = new PayloadSettingsByNameAndEdOrgIdSpec(t.FullName!, educationOrganizationId);
+        var connectorSpec = new PayloadSettingsByNameAndEdOrgIdSpec(t.FullName!, await _districtEdOrg.Resolve(educationOrganizationId));
         var repoConnectorSettings = await _edOrgPayloadSettings.FirstOrDefaultAsync(connectorSpec);
 
         Guard.Against.Null(repoConnectorSettings);

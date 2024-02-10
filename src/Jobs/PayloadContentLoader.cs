@@ -59,13 +59,17 @@ public class PayloadContentLoader
             var result = await jobToExecute.ExecuteAsync(request.Student?.Student?.StudentNumber!);
             await _jobStatusService.UpdateRequestJobStatus(request, RequestStatus.Loading, "Received result: {0}", jobToExecute.GetType().FullName);
 
+            var payloadContentTypeType = AppDomain.CurrentDomain.GetAssemblies()
+                        .SelectMany(s => s.GetExportedTypes())
+                        .Where(p => p.FullName == outgoingPayloadContent.PayloadContentType).FirstOrDefault();
+
             // Save the result
             var payloadContent = new PayloadContent()
             {
                 RequestId = request.Id,
-                JsonContent = JsonDocument.Parse(result.Content),
+                JsonContent = JsonSerializer.SerializeToDocument(result), // JsonDocument.Parse(result.Content),
                 ContentType = result.ContentType,
-                FileName =  $"{outgoingPayloadContent.PayloadContentType}.json"
+                FileName =  $"{payloadContentTypeType?.Name}.json"
             };
             await _payloadContentRepository.AddAsync(payloadContent);
             await _jobStatusService.UpdateRequestJobStatus(request, RequestStatus.Loading, "Saved payload content: {0}", jobToExecute.GetType().FullName);

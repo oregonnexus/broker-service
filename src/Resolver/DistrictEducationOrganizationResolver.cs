@@ -27,7 +27,7 @@ public class DistrictEducationOrganizationResolver
         }
     }
 
-    public async Task<EducationOrganization> Resolve(string educationOrganizationId)
+    public async Task<string> Resolve(string educationOrganizationId)
     {
         Guard.Against.Null(educationOrganizationId, "Missing education organization id.");
 
@@ -35,6 +35,17 @@ public class DistrictEducationOrganizationResolver
 
         Guard.Against.Null(educationOrganization);
 
-        return Resolve(educationOrganization);
+        return Resolve(educationOrganization).Id.ToString();
+    }
+
+    public async Task<Guid> Resolve(Guid educationOrganizationId)
+    {
+        Guard.Against.Null(educationOrganizationId, "Missing education organization id.");
+
+        var educationOrganization = await _edOrgRepo.GetByIdAsync(educationOrganizationId);
+
+        Guard.Against.Null(educationOrganization);
+
+        return Resolve(educationOrganization).Id;
     }
 }
