@@ -12,17 +12,20 @@ public class PayloadContentLoader
     private readonly PayloadJobResolver _payloadJobResolver;
     private readonly JobStatusService<SendRequest> _jobStatusService;
     private readonly IRepository<PayloadContent> _payloadContentRepository;
+    private readonly FocusEducationOrganizationResolver _focusEducationOrganizationResolver;
 
     public PayloadContentLoader(
             PayloadResolver payloadResolver,
             PayloadJobResolver payloadJobResolver,
             JobStatusService<SendRequest> jobStatusService,
-            IRepository<PayloadContent> payloadContentRepository)
+            IRepository<PayloadContent> payloadContentRepository,
+            FocusEducationOrganizationResolver focusEducationOrganizationResolver)
     {
         _payloadResolver = payloadResolver;
         _payloadJobResolver = payloadJobResolver;
         _jobStatusService = jobStatusService;
         _payloadContentRepository = payloadContentRepository;
+        _focusEducationOrganizationResolver = focusEducationOrganizationResolver;
     }
     
     public async Task Process(Request request)
@@ -44,13 +47,16 @@ public class PayloadContentLoader
         // Determine which jobs to execute based on outgoing payload config
         foreach(var outgoingPayloadContent in outgoingPayloadContents)
         {
+            // Set the ed org
+            _focusEducationOrganizationResolver.EducationOrganizationId = request.EducationOrganization!.ParentOrganizationId!.Value;
+
             // Resolve job to execute
             await _jobStatusService.UpdateRequestJobStatus(request, RequestStatus.Loading, "Resolving job to execute for payload content type: {0}", outgoingPayloadContent.PayloadContentType);
             var jobToExecute = _payloadJobResolver.Resolve(outgoingPayloadContent.PayloadContentType);
             await _jobStatusService.UpdateRequestJobStatus(request, RequestStatus.Loading, "Resolved job to execute: {0}", jobToExecute.GetType().FullName);
 
             // Execute the job
-            var result = await jobToExecute.ExecuteAsync(request.Student?.Student?.StudentNumber!, request.EducationOrganization!.ParentOrganizationId!.Value);
+            var result = await jobToExecute.ExecuteAsync(request.Student?.Student?.StudentNumber!);
             await _jobStatusService.UpdateRequestJobStatus(request, RequestStatus.Loading, "Received result: {0}", jobToExecute.GetType().FullName);
 
             // Save the result

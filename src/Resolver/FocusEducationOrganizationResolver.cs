@@ -11,6 +11,8 @@ public class FocusEducationOrganizationResolver
     private readonly ISession? _session;
     private readonly IServiceProvider _serviceProvider;
     private readonly IRepository<EducationOrganization> _edOrgRepo;
+
+    public Guid? EducationOrganizationId { get; set; }
     
     public FocusEducationOrganizationResolver(IHttpContextAccessor httpContext, IRepository<EducationOrganization> edOrgRepo,  IServiceProvider serviceProvider)
     {
@@ -19,22 +21,26 @@ public class FocusEducationOrganizationResolver
         _serviceProvider = serviceProvider;
     }
 
-    public FocusEducationOrganizationResolver(IRepository<EducationOrganization> edOrgRepo, IServiceProvider serviceProvider)
+    public FocusEducationOrganizationResolver(IRepository<EducationOrganization> edOrgRepo,  IServiceProvider serviceProvider)
     {
+        _session = null;
         _edOrgRepo = edOrgRepo;
         _serviceProvider = serviceProvider;
     }
 
-    public async Task<EducationOrganization> Resolve(string? educationOrganizationId = null)
+    public async Task<EducationOrganization> Resolve(Guid? educationOrganizationId = null)
     {
         if (educationOrganizationId is null && _session is not null)
         {
-            educationOrganizationId = _session.GetString("Focus.EducationOrganization.Key")!;    
+            educationOrganizationId = Guid.Parse(_session.GetString("Focus.EducationOrganization.Key")!);    
+        } else if (EducationOrganizationId is not null)
+        {
+            educationOrganizationId = EducationOrganizationId;
         }
         
         Guard.Against.Null(educationOrganizationId, "Missing Education Organization Id");
 
-        var educationOrganization = await _edOrgRepo.FirstOrDefaultAsync(new OrganizationByIdWithParentSpec(Guid.Parse(educationOrganizationId)));
+        var educationOrganization = await _edOrgRepo.FirstOrDefaultAsync(new OrganizationByIdWithParentSpec(educationOrganizationId.Value));
 
         Guard.Against.Null(educationOrganization, "Unable to find Education Organization Id");
 
