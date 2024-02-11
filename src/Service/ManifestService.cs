@@ -44,13 +44,15 @@ public class ManifestService
                 Id = request.EducationOrganization!.ParentOrganizationId!.Value,
                 Name = request.EducationOrganization!.ParentOrganization!.Name,
                 Number = request.EducationOrganization.ParentOrganization?.Number,
-                Domain = request.EducationOrganization.ParentOrganization?.Domain
+                Domain = request.EducationOrganization.ParentOrganization?.Domain,
+                Address = request.EducationOrganization.ParentOrganization?.Address
             },
             School = new School()
             {
                 Id = request.EducationOrganizationId,
                 Name = request.EducationOrganization.Name,
-                Number = request.EducationOrganization.Number
+                Number = request.EducationOrganization.Number,
+                Address = request.EducationOrganization.Address
             },
             Sender = new EducationOrganizationContact()
             {
