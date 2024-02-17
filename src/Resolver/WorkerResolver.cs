@@ -36,6 +36,10 @@ public class WorkerResolver
                     var payloadContentLoader = (PayloadContentLoader)scoped.ServiceProvider.GetService(typeof(PayloadContentLoader))!;
                     await payloadContentLoader.Process(request);
                     break;
+                case RequestStatus.WaitingToPrepare:
+                    var prepareMappingLoader = (PrepareMapping)scoped.ServiceProvider.GetService(typeof(PrepareMapping))!;
+                    await prepareMappingLoader.Process(request);
+                    break;
             }
             //_logger.LogInformation("End worker scope.");
         }

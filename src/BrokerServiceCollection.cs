@@ -58,6 +58,7 @@ public static class BrokerServiceCollection //: IConnectorServiceCollection
         services.AddSingleton<WorkerResolver>();
         services.AddScoped<IPayloadResolver, PayloadResolver>();
         services.AddScoped<PayloadResolver>();
+        services.AddScoped<ConnectorResolver>();
         services.AddScoped<FocusEducationOrganizationResolver>();
         services.AddScoped<DistrictEducationOrganizationResolver>();
         services.AddScoped<PayloadJobResolver>();
@@ -65,6 +66,7 @@ public static class BrokerServiceCollection //: IConnectorServiceCollection
         // Jobs
         services.AddScoped<SendRequest>();
         services.AddScoped<PayloadContentLoader>();
+        services.AddScoped<PrepareMapping>();
 
         // Worker
         services.AddScoped(typeof(JobStatusService<>));
