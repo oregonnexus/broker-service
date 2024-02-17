@@ -68,7 +68,7 @@ public class PayloadContentLoader
             {
                 RequestId = request.Id,
                 JsonContent = JsonSerializer.SerializeToDocument(result), // JsonDocument.Parse(result.Content),
-                ContentType = result.ContentType,
+                ContentType = result.Schema.ContentType,
                 FileName =  $"{payloadContentTypeType?.Name}.json"
             };
             await _payloadContentRepository.AddAsync(payloadContent);
