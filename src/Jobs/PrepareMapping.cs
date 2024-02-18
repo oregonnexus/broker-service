@@ -104,6 +104,8 @@ public class PrepareMapping
 
             var contentRecords = JsonSerializer.Deserialize<List<dynamic>>(payloadContentObject.Content);
 
+            Type? recordType = null;
+
             foreach(var record in contentRecords)
             {
                 var correctRecordType = Convert.ChangeType(JsonSerializer.Deserialize(record, transformerContentType), transformerContentType);
@@ -111,6 +113,8 @@ public class PrepareMapping
                 // Run through connector's transformer
                 dynamic transformer = ActivatorUtilities.CreateInstance(_serviceProvider, transformerType);
                 var result = methodInfo!.Invoke(transformer, new object[] { correctRecordType, request.RequestManifest?.Student!, request.EducationOrganization, request.ResponseManifest! });
+                
+                recordType = result.GetType();
                 
                 // Save each
                 records.Add(result);
@@ -122,7 +126,7 @@ public class PrepareMapping
             {
                 RequestId = request.Id,
                 OriginalSchema = payloadContentSchema,
-                MappingType = $"{payloadContentSchema?.Schema}::{payloadContentSchema?.SchemaVersion}",
+                MappingType = recordType?.FullName,
                 StudentAttributes = null,
                 SourceMapping = recordsSerialized,
                 DestinationMapping = recordsSerialized
