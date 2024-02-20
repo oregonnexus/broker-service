@@ -1,6 +1,5 @@
 using OregonNexus.Broker.Domain;
 using Microsoft.Extensions.DependencyInjection;
-using OregonNexus.Broker.SharedKernel;
 using Ardalis.GuardClauses;
 using OregonNexus.Broker.Service.Jobs;
 using Microsoft.Extensions.Logging;
@@ -39,6 +38,10 @@ public class WorkerResolver
                 case RequestStatus.WaitingToPrepare:
                     var prepareMappingLoader = (PrepareMapping)scoped.ServiceProvider.GetService(typeof(PrepareMapping))!;
                     await prepareMappingLoader.Process(request);
+                    break;
+                case RequestStatus.WaitingToImport:
+                    var importMappingLoader = (ImportMapping)scoped.ServiceProvider.GetService(typeof(ImportMapping))!;
+                    await importMappingLoader.Process(request);
                     break;
             }
             //_logger.LogInformation("End worker scope.");

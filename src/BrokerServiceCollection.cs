@@ -67,6 +67,7 @@ public static class BrokerServiceCollection //: IConnectorServiceCollection
         services.AddScoped<SendRequest>();
         services.AddScoped<PayloadContentLoader>();
         services.AddScoped<PrepareMapping>();
+        services.AddScoped<ImportMapping>();
 
         // Worker
         services.AddScoped(typeof(JobStatusService<>));
