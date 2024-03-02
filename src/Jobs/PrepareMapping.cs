@@ -108,7 +108,11 @@ public class PrepareMapping
 
             foreach(var record in contentRecords)
             {
-                var correctRecordType = Convert.ChangeType(JsonSerializer.Deserialize(record, transformerContentType), transformerContentType);
+
+                var correctRecordType = Convert.ChangeType(JsonSerializer.Deserialize(record, transformerContentType, new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    }), transformerContentType);
 
                 // Run through connector's transformer
                 dynamic transformer = ActivatorUtilities.CreateInstance(_serviceProvider, transformerType);
