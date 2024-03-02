@@ -88,7 +88,7 @@ public class PrepareMapping
             dynamic payloadContentObject = Convert.ChangeType(JsonSerializer.Deserialize(payloadContent.JsonContent!, payloadContentSchemaType), payloadContentSchemaType)!;
 
             // Find appropriate transformer
-            var transformerType = _connectorLoader.Transformers.Where(x => x.Key == $"{payloadContentSchema?.Schema}::{payloadContentSchema?.SchemaVersion}").FirstOrDefault().Value;
+            var transformerType = _connectorLoader.Transformers.Where(x => x.Key == $"{sisConnectorType.Assembly.GetName().Name}::{payloadContentSchema?.Schema}::{payloadContentSchema?.SchemaVersion}").FirstOrDefault().Value;
             
             if (transformerType is null) { continue; }
 
