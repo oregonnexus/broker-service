@@ -22,6 +22,7 @@ public static class BrokerServiceCollection //: IConnectorServiceCollection
     {
         // Other Services
         services.AddSingleton<ILookupClient, LookupClient>();
+        services.AddSingleton<MappingLookupService>();
 
         // Seralizers
         services.AddScoped<ConfigurationSerializer>();
