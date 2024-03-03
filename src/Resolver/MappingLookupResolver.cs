@@ -19,7 +19,8 @@ public class MappingLookupResolver
         // Locate the student lookup service in connector
         var studentLookupServiceType = assembly
             .Where(x => x.GetInterface("IMappingLookup") != null
-                     && x.IsAbstract == false)
+                     && x.IsAbstract == false
+                     && x.FullName == TConnector.FullName)
             .FirstOrDefault();
 
         Guard.Against.Null(studentLookupServiceType, "", "Could not get mapping lookup type");

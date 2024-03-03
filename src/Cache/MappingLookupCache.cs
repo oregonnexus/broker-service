@@ -21,7 +21,7 @@ public class MappingLookupCache
         _logger.LogInformation($"Checking for key in mapping lookup cache: {cacheKey}");
         if (_cachedLookups.ContainsKey(cacheKey))  
         {  
-              return _cachedLookups[cacheKey];
+            return Clone(_cachedLookups[cacheKey]);
         }  
         return null;
     }
@@ -29,6 +29,22 @@ public class MappingLookupCache
     public void Add(string cacheKey, List<SelectListItem> selectList)
     {
         _logger.LogInformation($"Added key in mapping lookup cache: {cacheKey}");
-        _cachedLookups.Add(cacheKey, selectList);
+        _cachedLookups.Add(cacheKey, Clone(selectList));
+    }
+
+    private List<SelectListItem> Clone(List<SelectListItem> original)
+    {
+        var returnSelectList = new List<SelectListItem>();
+
+        foreach(var select in original)
+        {
+            returnSelectList.Add(new SelectListItem()
+            {
+                Text = select.Text,
+                Value = select.Value,
+                Selected = false
+            });
+        }
+        return returnSelectList;
     }
 }   

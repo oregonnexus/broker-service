@@ -128,7 +128,8 @@ public class PrepareMapping
 
                 if (transformMethodInfo is not null)
                 {
-                    transformResult = transformMethodInfo!.Invoke(transformer, new object[] { result, request.RequestManifest?.Student!, request.EducationOrganization, request.ResponseManifest! });
+                    transformResult = transformMethodInfo!.Invoke(transformer, new object[] { correctRecordType, request.RequestManifest?.Student!, request.EducationOrganization, request.ResponseManifest! });
+                    transformResult.BrokerId = result.BrokerId;
                 }
                 
                 // Save each
