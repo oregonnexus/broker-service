@@ -36,6 +36,7 @@ public static class BrokerServiceCollection //: IConnectorServiceCollection
         services.AddScoped<DistrictEducationOrganizationResolver>();
         services.AddScoped<StudentLookupResolver>();
         services.AddScoped<StudentResolver>();
+        services.AddSingleton<MappingLookupResolver>();
 
         // Services
         services.AddScoped<StudentLookupService>();
