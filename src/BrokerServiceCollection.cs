@@ -6,6 +6,7 @@ using OregonNexus.Broker.Service.Serializers;
 using OregonNexus.Broker.Service.Jobs;
 using DnsClient;
 using OregonNexus.Broker.Service.Worker;
+using OregonNexus.Broker.Service.Cache;
 
 namespace OregonNexus.Broker.Service;
 
@@ -20,9 +21,12 @@ public static class BrokerServiceCollection //: IConnectorServiceCollection
 
     public static IServiceCollection AddBrokerServices(this IServiceCollection services)
     {
+        // Caches
+        services.AddSingleton<MappingLookupCache>();
+        
         // Other Services
         services.AddSingleton<ILookupClient, LookupClient>();
-        services.AddSingleton<MappingLookupService>();
+        
 
         // Seralizers
         services.AddScoped<ConfigurationSerializer>();
@@ -36,7 +40,7 @@ public static class BrokerServiceCollection //: IConnectorServiceCollection
         services.AddScoped<DistrictEducationOrganizationResolver>();
         services.AddScoped<StudentLookupResolver>();
         services.AddScoped<StudentResolver>();
-        services.AddSingleton<MappingLookupResolver>();
+        services.AddScoped<MappingLookupResolver>();
 
         // Services
         services.AddScoped<StudentLookupService>();
@@ -44,6 +48,7 @@ public static class BrokerServiceCollection //: IConnectorServiceCollection
         services.AddScoped<PayloadContentTypeService>();
         services.AddScoped<DirectoryLookupService>();
         services.AddScoped<ManifestService>();
+        services.AddScoped<MappingLookupService>();
 
         return services;
     }

@@ -2,6 +2,7 @@ using OregonNexus.Broker.Connector;
 using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using OregonNexus.Broker.Service.Resolvers;
+using OregonNexus.Broker.Service.Cache;
 
 namespace OregonNexus.Broker.Service.Lookup;
 
@@ -9,32 +10,31 @@ public class MappingLookupService
 {
     private readonly ILogger<MappingLookupService> _logger;
     private readonly MappingLookupResolver _mappingLookupResolver;
-    private readonly HttpClient _httpClient;
-
-    private Dictionary<string, List<SelectListItem>> _cachedLookups => new Dictionary<string, List<SelectListItem>>();
+    private readonly MappingLookupCache _mappingLookupCache;
 
     public MappingLookupService(ILogger<MappingLookupService> logger, 
         MappingLookupResolver mappingLookupResolver,
-        IHttpClientFactory httpClientFactory)
+        MappingLookupCache mappingLookupCache)
     {
         _logger = logger;
         _mappingLookupResolver = mappingLookupResolver;
-        _httpClient = httpClientFactory.CreateClient("IgnoreSSL");
+        _mappingLookupCache = mappingLookupCache;
     }
 
     public async Task<List<SelectListItem>> SelectAsync(LookupAttribute lookupAttribute, string value)
     {
-        var selectList = new List<SelectListItem>();
+        var selectList = _mappingLookupCache.Get(lookupAttribute.LookupType.Name);
         
         // Determine if lookup already called and loaded
-        if (!_cachedLookups.TryGetValue(lookupAttribute.LookupType.Name, out selectList))
+        if (selectList is null)
         {
+            _logger.LogInformation($"{lookupAttribute.LookupType.Name} not found in cache. Fetching...");
             // Resolve lookup to call
             var mappingLookupObj = _mappingLookupResolver.Resolve(lookupAttribute.LookupType);
             selectList = await mappingLookupObj.SelectListAsync();
 
             // Cache the value
-            _cachedLookups.Add(lookupAttribute.LookupType.Name, selectList);
+            _mappingLookupCache.Add(lookupAttribute.LookupType.Name, selectList);
         }
         
         // Set the selected value

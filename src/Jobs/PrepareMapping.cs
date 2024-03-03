@@ -97,11 +97,14 @@ public class PrepareMapping
 
             if (methodInfo is null) { continue; }
 
+            var transformMethodInfo = transformerType.GetMethod("Transform");
+
             var transformerContentType = AppDomain.CurrentDomain.GetAssemblies()
                 .SelectMany(s => s.GetExportedTypes())
                 .Where(p => p.FullName == payloadContentSchema?.ContentObjectType).FirstOrDefault();
 
             var records = new List<dynamic>();
+            var transformedRecords = new List<dynamic>();
 
             var contentRecords = JsonSerializer.Deserialize<List<dynamic>>(payloadContentObject.Content);
 
@@ -120,16 +123,27 @@ public class PrepareMapping
                 var result = methodInfo!.Invoke(transformer, new object[] { correctRecordType, request.RequestManifest?.Student!, request.EducationOrganization, request.ResponseManifest! });
                 
                 recordType = result.GetType();
+
+                var transformResult = result;
+
+                if (transformMethodInfo is not null)
+                {
+                    transformResult = transformMethodInfo!.Invoke(transformer, new object[] { result, request.RequestManifest?.Student!, request.EducationOrganization, request.ResponseManifest! });
+                }
                 
                 // Save each
                 records.Add(result);
+                transformedRecords.Add(transformResult);
             }
 
             List<dynamic> outRecords = null;
+            List<dynamic> outTransformedRecords = null;
 
             outRecords = (List<dynamic>)transformerType.GetMethod("Sort")?.Invoke(null, [records])!;
+            outTransformedRecords = (List<dynamic>)transformerType.GetMethod("Sort")?.Invoke(null, [transformedRecords])!;
             
             var recordsSerialized = JsonSerializer.SerializeToDocument((outRecords is null) ? records : outRecords);
+            var transformedRecordsSerialized = JsonSerializer.SerializeToDocument((outTransformedRecords is null) ? transformedRecords : outTransformedRecords);
 
             await _mappingRepository.AddAsync(new Mapping()
             {
@@ -138,7 +152,7 @@ public class PrepareMapping
                 MappingType = recordType?.FullName,
                 StudentAttributes = null,
                 SourceMapping = recordsSerialized,
-                DestinationMapping = recordsSerialized
+                DestinationMapping = transformedRecordsSerialized
             });
 
         }
