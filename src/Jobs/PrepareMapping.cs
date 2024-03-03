@@ -9,6 +9,7 @@ using System.Text.Json.Nodes;
 using System.Reflection;
 using OregonNexus.Broker.Connector;
 using Microsoft.Extensions.DependencyInjection;
+using System.Globalization;
 
 namespace OregonNexus.Broker.Service.Jobs;
 
@@ -123,8 +124,12 @@ public class PrepareMapping
                 // Save each
                 records.Add(result);
             }
+
+            List<dynamic> outRecords = null;
+
+            outRecords = (List<dynamic>)transformerType.GetMethod("Sort")?.Invoke(null, [records])!;
             
-            var recordsSerialized = JsonSerializer.SerializeToDocument(records);
+            var recordsSerialized = JsonSerializer.SerializeToDocument((outRecords is null) ? records : outRecords);
 
             await _mappingRepository.AddAsync(new Mapping()
             {
