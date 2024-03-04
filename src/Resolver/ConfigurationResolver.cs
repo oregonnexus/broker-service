@@ -61,4 +61,34 @@ public class ConfigurationResolver : IConfigurationResolver
 
         return iconfigModel;
     }
+
+    public async Task<T> FetchConnectorSettingsAsync<T>(string districtNumber)
+    {
+        var iconfigModel = (T)ActivatorUtilities.CreateInstance(_serviceProvider, typeof(T));
+        var objTypeName = iconfigModel.GetType().FullName;
+        
+        Guard.Against.Null(typeof(T).Assembly.GetName().Name);
+
+        // Get existing object
+        var connectorSpec = new ConnectorByNameAndDistrictNumberSpec(typeof(T).Assembly.GetName().Name!, districtNumber);
+        var repoConnectorSettings = await _edOrgConnectorSettings.FirstOrDefaultAsync(connectorSpec);
+
+        Guard.Against.Null(repoConnectorSettings);
+
+        var configSettings = Newtonsoft.Json.Linq.JObject.Parse(repoConnectorSettings?.Settings?.RootElement.GetRawText());
+
+        var configSettingsObj = configSettings[objTypeName];
+
+        foreach(var prop in iconfigModel!.GetType().GetProperties())
+        {
+            // Check if prop in configSettings
+            var value = configSettingsObj.Value<string>(prop.Name);
+
+            Guard.Against.Null(value);
+            
+            prop.SetValue(iconfigModel, value);
+        }
+
+        return iconfigModel;
+    }
 }

@@ -41,6 +41,7 @@ public static class BrokerServiceCollection //: IConnectorServiceCollection
         services.AddScoped<StudentLookupResolver>();
         services.AddScoped<StudentResolver>();
         services.AddScoped<MappingLookupResolver>();
+        services.AddScoped<AuthenticationProviderResolver>();
 
         // Services
         services.AddScoped<StudentLookupService>();
