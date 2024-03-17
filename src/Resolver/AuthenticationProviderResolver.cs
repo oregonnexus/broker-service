@@ -31,7 +31,10 @@ public class AuthenticationProviderResolver
     
     public IAuthenticationProvider? Resolve(string connectorTypeName)
     {
-        Type authProviderType = _connectorLoader.GetAuthenticator(connectorTypeName);       
+        Type? authProviderType = _connectorLoader.GetAuthenticator(connectorTypeName);  
+
+        Guard.Against.Null(authProviderType, "authProviderType", $"Unable to resole {connectorTypeName}");
+
         return (IAuthenticationProvider)ActivatorUtilities.CreateInstance(_serviceProvider, authProviderType);  
     }
 }
