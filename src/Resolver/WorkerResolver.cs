@@ -1,10 +1,10 @@
-using OregonNexus.Broker.Domain;
+using EdNexusData.Broker.Domain;
 using Microsoft.Extensions.DependencyInjection;
 using Ardalis.GuardClauses;
-using OregonNexus.Broker.Service.Jobs;
+using EdNexusData.Broker.Service.Jobs;
 using Microsoft.Extensions.Logging;
 
-namespace OregonNexus.Broker.Service.Resolvers;
+namespace EdNexusData.Broker.Service.Resolvers;
 
 public class WorkerResolver
 {

@@ -1,8 +1,8 @@
-using OregonNexus.Broker.Domain;
-using OregonNexus.Broker.SharedKernel;
+using EdNexusData.Broker.Domain;
+using EdNexusData.Broker.SharedKernel;
 using Ardalis.GuardClauses;
 
-namespace OregonNexus.Broker.Service.Resolvers;
+namespace EdNexusData.Broker.Service.Resolvers;
 
 public class DistrictEducationOrganizationResolver
 {

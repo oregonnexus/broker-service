@@ -1,5 +1,5 @@
 
-namespace OregonNexus.Broker.Service.Models;
+namespace EdNexusData.Broker.Service.Models;
 
 public class BrokerDnsTxtRecord
 {

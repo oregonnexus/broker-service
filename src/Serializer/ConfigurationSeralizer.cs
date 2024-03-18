@@ -1,12 +1,12 @@
-using OregonNexus.Broker.SharedKernel;
-using OregonNexus.Broker.Domain;
-using OregonNexus.Broker.Domain.Specifications;
+using EdNexusData.Broker.SharedKernel;
+using EdNexusData.Broker.Domain;
+using EdNexusData.Broker.Domain.Specifications;
 using Microsoft.Extensions.DependencyInjection;
 using System.Text.Json;
 using System.Dynamic;
-using OregonNexus.Broker.Connector.Configuration;
+using EdNexusData.Broker.Connector.Configuration;
 
-namespace OregonNexus.Broker.Service.Serializers;
+namespace EdNexusData.Broker.Service.Serializers;
 
 public class ConfigurationSerializer
 {
@@ -55,7 +55,7 @@ public class ConfigurationSerializer
         return iconfigModel!;
     }
 
-    public async Task<IConfiguration> SerializeAndSaveAsync(OregonNexus.Broker.Connector.Configuration.IConfiguration obj, Guid focusEducationOrganization)
+    public async Task<IConfiguration> SerializeAndSaveAsync(EdNexusData.Broker.Connector.Configuration.IConfiguration obj, Guid focusEducationOrganization)
     {
         var repoConnectorSettings = new EducationOrganizationConnectorSettings();
 

@@ -1,12 +1,12 @@
-using OregonNexus.Broker.SharedKernel;
-using OregonNexus.Broker.Domain;
-using OregonNexus.Broker.Domain.Specifications;
+using EdNexusData.Broker.SharedKernel;
+using EdNexusData.Broker.Domain;
+using EdNexusData.Broker.Domain.Specifications;
 using Microsoft.Extensions.DependencyInjection;
 using System.Text.Json;
 using System.Dynamic;
-using OregonNexus.Broker.Connector.Payload;
+using EdNexusData.Broker.Connector.Payload;
 
-namespace OregonNexus.Broker.Service.Serializers;
+namespace EdNexusData.Broker.Service.Serializers;
 
 public class IncomingPayloadSerializer
 {

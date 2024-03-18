@@ -1,13 +1,13 @@
-using OregonNexus.Broker.Connector.StudentLookup;
-using OregonNexus.Broker.Connector.Resolvers;
-using OregonNexus.Broker.Domain;
-using OregonNexus.Broker.Connector.Payload;
-using OregonNexus.Broker.Service.Resolvers;
-using OregonNexus.Broker.Connector;
+using EdNexusData.Broker.Connector.StudentLookup;
+using EdNexusData.Broker.Connector.Resolvers;
+using EdNexusData.Broker.Domain;
+using EdNexusData.Broker.Connector.Payload;
+using EdNexusData.Broker.Service.Resolvers;
+using EdNexusData.Broker.Connector;
 using Ardalis.GuardClauses;
-using OregonNexus.Broker.Connector.Student;
+using EdNexusData.Broker.Connector.Student;
 
-namespace OregonNexus.Broker.Service.Lookup;
+namespace EdNexusData.Broker.Service.Lookup;
 
 public class StudentLookupService
 {

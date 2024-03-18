@@ -1,9 +1,9 @@
-using OregonNexus.Broker.Connector;
+using EdNexusData.Broker.Connector;
 using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using OregonNexus.Broker.Service.Resolvers;
+using EdNexusData.Broker.Service.Resolvers;
 
-namespace OregonNexus.Broker.Service.Cache;
+namespace EdNexusData.Broker.Service.Cache;
 
 public class MappingLookupCache
 {

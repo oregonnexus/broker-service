@@ -1,8 +1,8 @@
 using Microsoft.Extensions.DependencyInjection;
-using OregonNexus.Broker.Connector.Student;
+using EdNexusData.Broker.Connector.Student;
 using Ardalis.GuardClauses;
 
-namespace OregonNexus.Broker.Service.Resolvers;
+namespace EdNexusData.Broker.Service.Resolvers;
 
 public class StudentResolver
 {

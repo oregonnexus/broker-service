@@ -1,8 +1,8 @@
 using Microsoft.Extensions.DependencyInjection;
 using Ardalis.GuardClauses;
-using OregonNexus.Broker.Connector;
+using EdNexusData.Broker.Connector;
 
-namespace OregonNexus.Broker.Service.Resolvers;
+namespace EdNexusData.Broker.Service.Resolvers;
 
 public class MappingLookupResolver
 {

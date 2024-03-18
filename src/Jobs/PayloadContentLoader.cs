@@ -1,10 +1,10 @@
-using OregonNexus.Broker.Domain;
-using OregonNexus.Broker.SharedKernel;
+using EdNexusData.Broker.Domain;
+using EdNexusData.Broker.SharedKernel;
 using System.Text.Json;
-using OregonNexus.Broker.Service.Worker;
-using OregonNexus.Broker.Service.Resolvers;
+using EdNexusData.Broker.Service.Worker;
+using EdNexusData.Broker.Service.Resolvers;
 
-namespace OregonNexus.Broker.Service.Jobs;
+namespace EdNexusData.Broker.Service.Jobs;
 
 public class PayloadContentLoader
 {

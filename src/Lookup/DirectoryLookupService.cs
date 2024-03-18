@@ -1,19 +1,19 @@
-using OregonNexus.Broker.Connector.StudentLookup;
-using OregonNexus.Broker.Connector.Resolvers;
-using OregonNexus.Broker.Domain;
-using OregonNexus.Broker.Connector.Payload;
-using OregonNexus.Broker.Service.Resolvers;
-using OregonNexus.Broker.Connector;
+using EdNexusData.Broker.Connector.StudentLookup;
+using EdNexusData.Broker.Connector.Resolvers;
+using EdNexusData.Broker.Domain;
+using EdNexusData.Broker.Connector.Payload;
+using EdNexusData.Broker.Service.Resolvers;
+using EdNexusData.Broker.Connector;
 using Ardalis.GuardClauses;
-using OregonNexus.Broker.Connector.Student;
+using EdNexusData.Broker.Connector.Student;
 using DnsClient;
 using DnsClient.Internal;
 using Microsoft.Extensions.Logging;
-using OregonNexus.Broker.Service.Models;
+using EdNexusData.Broker.Service.Models;
 using System.Web;
 using System.Net.Http.Json;
 
-namespace OregonNexus.Broker.Service.Lookup;
+namespace EdNexusData.Broker.Service.Lookup;
 
 public class DirectoryLookupService
 {

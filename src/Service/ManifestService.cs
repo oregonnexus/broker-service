@@ -1,9 +1,9 @@
 using Ardalis.GuardClauses;
 using Microsoft.AspNetCore.Identity;
-using OregonNexus.Broker.Domain;
-using OregonNexus.Broker.SharedKernel;
+using EdNexusData.Broker.Domain;
+using EdNexusData.Broker.SharedKernel;
 
-namespace OregonNexus.Broker.Service;
+namespace EdNexusData.Broker.Service;
 
 public class ManifestService
 {

@@ -1,11 +1,11 @@
-using OregonNexus.Broker.Connector.Payload;
-using OregonNexus.Broker.Domain;
-using OregonNexus.Broker.Domain.Specifications;
-using OregonNexus.Broker.SharedKernel;
+using EdNexusData.Broker.Connector.Payload;
+using EdNexusData.Broker.Domain;
+using EdNexusData.Broker.Domain.Specifications;
+using EdNexusData.Broker.SharedKernel;
 using Ardalis.GuardClauses;
-using OregonNexus.Broker.Connector;
+using EdNexusData.Broker.Connector;
 
-namespace OregonNexus.Broker.Service.Resolvers;
+namespace EdNexusData.Broker.Service.Resolvers;
 
 public class ConnectorResolver
 {

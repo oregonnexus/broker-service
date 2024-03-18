@@ -1,6 +1,6 @@
-using OregonNexus.Broker.Connector;
+using EdNexusData.Broker.Connector;
 
-namespace OregonNexus.Broker.Service;
+namespace EdNexusData.Broker.Service;
 
 public class PayloadContentTypeDisplay
 {

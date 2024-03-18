@@ -1,12 +1,12 @@
 using System.Text.Json;
 using Ardalis.GuardClauses;
-using OregonNexus.Broker.Data;
-using OregonNexus.Broker.Domain;
-using OregonNexus.Broker.Domain.Specifications;
-using OregonNexus.Broker.Service.Worker;
-using OregonNexus.Broker.SharedKernel;
+using EdNexusData.Broker.Data;
+using EdNexusData.Broker.Domain;
+using EdNexusData.Broker.Domain.Specifications;
+using EdNexusData.Broker.Service.Worker;
+using EdNexusData.Broker.SharedKernel;
 
-namespace OregonNexus.Broker.Service;
+namespace EdNexusData.Broker.Service;
 
 public class MessageService
 {

@@ -1,14 +1,14 @@
 using Microsoft.Extensions.DependencyInjection;
-using OregonNexus.Broker.Connector.Resolvers;
-using OregonNexus.Broker.Service.Resolvers;
-using OregonNexus.Broker.Service.Lookup;
-using OregonNexus.Broker.Service.Serializers;
-using OregonNexus.Broker.Service.Jobs;
+using EdNexusData.Broker.Connector.Resolvers;
+using EdNexusData.Broker.Service.Resolvers;
+using EdNexusData.Broker.Service.Lookup;
+using EdNexusData.Broker.Service.Serializers;
+using EdNexusData.Broker.Service.Jobs;
 using DnsClient;
-using OregonNexus.Broker.Service.Worker;
-using OregonNexus.Broker.Service.Cache;
+using EdNexusData.Broker.Service.Worker;
+using EdNexusData.Broker.Service.Cache;
 
-namespace OregonNexus.Broker.Service;
+namespace EdNexusData.Broker.Service;
 
 public static class BrokerServiceCollection //: IConnectorServiceCollection
 {

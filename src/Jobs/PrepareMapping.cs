@@ -1,17 +1,17 @@
-using OregonNexus.Broker.Domain;
-using OregonNexus.Broker.SharedKernel;
+using EdNexusData.Broker.Domain;
+using EdNexusData.Broker.SharedKernel;
 using System.Text.Json;
-using OregonNexus.Broker.Service.Worker;
-using OregonNexus.Broker.Service.Resolvers;
+using EdNexusData.Broker.Service.Worker;
+using EdNexusData.Broker.Service.Resolvers;
 using Ardalis.GuardClauses;
-using OregonNexus.Broker.Domain.Specifications;
+using EdNexusData.Broker.Domain.Specifications;
 using System.Text.Json.Nodes;
 using System.Reflection;
-using OregonNexus.Broker.Connector;
+using EdNexusData.Broker.Connector;
 using Microsoft.Extensions.DependencyInjection;
 using System.Globalization;
 
-namespace OregonNexus.Broker.Service.Jobs;
+namespace EdNexusData.Broker.Service.Jobs;
 
 public class PrepareMapping
 {

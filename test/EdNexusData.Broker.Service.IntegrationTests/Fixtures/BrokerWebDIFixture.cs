@@ -1,12 +1,12 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using OregonNexus.Broker.Service.IntegrationTests.Services;
-using OregonNexus.Broker.Domain;
-using OregonNexus.Broker.SharedKernel;
-using OregonNexus.Broker.Data;
+using EdNexusData.Broker.Service.IntegrationTests.Services;
+using EdNexusData.Broker.Domain;
+using EdNexusData.Broker.SharedKernel;
+using EdNexusData.Broker.Data;
 
-namespace OregonNexus.Broker.Service.IntegrationTests.Fixtures;
+namespace EdNexusData.Broker.Service.IntegrationTests.Fixtures;
 
 public class BrokerWebDIServicesFixture : IDisposable
 {

@@ -1,8 +1,8 @@
-using OregonNexus.Broker.Connector;
-using OregonNexus.Broker.Connector.PayloadContentTypes;
+using EdNexusData.Broker.Connector;
+using EdNexusData.Broker.Connector.PayloadContentTypes;
 using System.ComponentModel;
 
-namespace OregonNexus.Broker.Service;
+namespace EdNexusData.Broker.Service;
 
 public class PayloadContentTypeService
 {

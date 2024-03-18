@@ -1,8 +1,8 @@
 using Microsoft.Extensions.Logging;
-using OregonNexus.Broker.Domain;
-using OregonNexus.Broker.SharedKernel;
+using EdNexusData.Broker.Domain;
+using EdNexusData.Broker.SharedKernel;
 
-namespace OregonNexus.Broker.Service.Worker;
+namespace EdNexusData.Broker.Service.Worker;
 
 public class JobStatusService<T>
 {
